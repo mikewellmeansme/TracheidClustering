@@ -1,2 +1,5 @@
 /input
 /output
+.Rhistory
+/__pycache__
+climate.py
