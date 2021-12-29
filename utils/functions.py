@@ -56,7 +56,7 @@ def df_calculate_pvalues(df, method='pearson'):
         for c in df.columns:
             if method == 'pearson':
                 pvalues[r][c] = dropna_pearsonr(df[r], df[c])[1]
-            elif method == 'spearnan':
+            elif method == 'spearman':
                 pvalues[r][c] = dropna_spearmanr(df[r], df[c])[1]
             else:
                 raise Exception('Wrong correlation method!')
