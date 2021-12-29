@@ -50,7 +50,6 @@ def df_calculate_pvalues(df, method='pearson'):
     Функция вычисления p-value для корреляций DataFrame'а df.
     Поддерживает method pearson и spearman
     """
-    df = df.dropna()._get_numeric_data()
     dfcols = pd.DataFrame(columns=df.columns)
     pvalues = dfcols.transpose().join(dfcols, how='outer')
     for r in df.columns:
