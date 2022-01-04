@@ -55,7 +55,7 @@ def get_df_corr(df, method='pearson'):
     return result
 
 
-def df_calculate_bootstrap_corr(df, method='spearman'):
+def get_df_bootstrap_corr(df, method='spearman'):
     """
     Функция вычисления bootstrap корреляцию для DataFrame'а df.
     Поддерживает method pearson и spearman
@@ -86,3 +86,12 @@ def df_calculate_bootstrap_corr(df, method='spearman'):
             else:
                 result[c1][c2] = np.nan
     return result
+
+
+def get_df_pairs_len(df):
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for c1 in df.columns:
+        for c2 in df.columns:
+            pvalues[c1][c2] = len(dropna(df[c1], df[c2])[0])
+    return pvalues
