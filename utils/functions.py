@@ -39,12 +39,16 @@ def get_moving_avg(df, window=7, nanmean=False):
     nanmean : используем nanmean для сглаживания? (тогда потеряются данные по краям)
     """
     month = df['Month']
+    if 'Week' in df.columns:
+        week = df['Week']
     day = df['Day']
     if nanmean:
         result = df.rolling(window=window, center=True).apply(np.nanmean)
     else:
         result = df.rolling(window=window, center=True, min_periods=1).mean()
     result['Month'] = month
+    if 'Week' in df.columns:
+        result['Week'] = week
     result['Day'] = day
     return result
 
