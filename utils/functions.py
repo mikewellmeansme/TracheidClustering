@@ -30,3 +30,35 @@ def get_normalized_list(x: list, norm : int):
 def running_mean(x, N=21):
     cumsum = np.cumsum(np.insert(x, 0, 0)) 
     return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+
+def get_moving_avg(df, window=7, nanmean=False):
+    """
+    Возвращает скользящее средние для температуры
+    window : окно
+    nanmean : используем nanmean для сглаживания? (тогда потеряются данные по краям)
+    """
+    month = df['Month']
+    day = df['Day']
+    if nanmean:
+        result = df.rolling(window=window, center=True).apply(np.nanmean)
+    else:
+        result = df.rolling(window=window, center=True, min_periods=1).mean()
+    result['Month'] = month
+    result['Day'] = day
+    return result
+
+def get_moving_sum(df, window=7):
+    """
+    Возвращает скользящую сумму для осадков
+    window : окно
+    """
+    month = df['Month']
+    day = df['Day']
+    result = df.rolling(window=window, center=True, min_periods=1).sum()
+    result['Month'] = month
+    result['Day'] = day
+    return result
+
+def list_to_cumulative(lst):
+    return [np.nansum(lst[:i+1]) for i in range(len(lst))]
