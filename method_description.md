@@ -1,12 +1,12 @@
 Input Data:
 
-$T=\{ t_1, ..., t_7 \}$ — Set of trees.
+$T=\lbrace t_1, ..., t_7 \rbrace$ — Set of trees.
 
-$Y(t)=\{ y_{t1}, ..., y_{tn_t} \}$ — Set of years fow which the meassurements for the tree $t$ are available,  $t \in T$
+$Y(t)=\lbrace y_{t1}, ..., y_{tn_t} \rbrace$ — Set of years fow which the meassurements for the tree $t$ are available,  $t \in T$
 
 $Y=\bigcup_{t \in T} Y(t)$ — Set of all years for witch the meassurements are available.
 
-$T(y)=\{ t_{y1}, ..., t_{ym_y} \}$ — Set of trees for which the meassurements for the year $y$ are availvable, $y \in Y$
+$T(y)=\lbrace t_{y1}, ..., t_{ym_y} \rbrace$ — Set of trees for which the meassurements for the year $y$ are availvable, $y \in Y$
 
 $\left (T \equiv \bigcup_{y \in Y} T(y) \right )$
 
@@ -14,9 +14,9 @@ Normalization procedure description:
 
 $N$ — Number of cells for tracheid normalization.
 
-$e^{raw}(t,y)=\{e^{raw}_1, ..., e^{raw}_{\varepsilon}\}$ — Raw tracheid data where:
+$e^{raw}(t,y)=\lbrace e^{raw}_1, ..., e^{raw}_{\varepsilon}\rbrace$ — Raw tracheid data where:
 
-$e^{raw}_k = e^{raw}_k(t,y) \in \{d^{raw}_k, c^{raw}_k\}$
+$e^{raw}_k = e^{raw}_k(t,y) \in \lbrace d^{raw}_k, c^{raw}_k\rbrace$
 
 $d^{raw}_k=d^{raw}_k(t,y)$ — Diameter of the $k^{th}$ cell in raw tracheid
 
@@ -24,24 +24,24 @@ $c^{raw}_k=c^{raw}_k(t,y)$ — Cell wall thickness of the $k^{th}$ cell in raw t
 
 $k=\overline{1,\varepsilon}$, $t\in T, y\in Y(t)$
 
-$e^* = \{\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{raw}_2}_{N}, ..., \underbrace{e^{raw}_{\varepsilon},...,e^{raw}_{\varepsilon}}_{N}\}$ — Intermediate sequence.
+$e^* = \lbrace\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{raw}_2}_{N}, ..., \underbrace{e^{raw}_{\varepsilon},...,e^{raw}_{\varepsilon}}_{N}\rbrace$ — Intermediate sequence.
 
 
-$e = \{e_1, ..., e_N\}$ — Normilized to N cells tracheid data, where 
+$e = \lbrace e_1, ..., e_N\rbrace$ — Normilized to N cells tracheid data, where 
 
 $$e_i = \frac{1}{\varepsilon} \sum_{j=\varepsilon \cdot (i-1)+1}^{\varepsilon \cdot i}e^{*}_j, i=\overline{1, N}$$
 
 Using this procedure, we obtain:
 
-$d = \{d_1, ..., d_N\}$ — Normilized to N cells data about tracheid cell diameters
+$d = \lbrace d_1, ..., d_N\rbrace$ — Normilized to N cells data about tracheid cell diameters
 
-$c = \{c_1, ..., c_N\}$ — Normilized to N cells data about tracheid cell wall thicknesses
+$c = \lbrace c_1, ..., c_N\rbrace$ — Normilized to N cells data about tracheid cell wall thicknesses
 
 
 
 Clusturing objects description:
 
-$R(t,y) =d \cup c = \{ d_1, ... , d_{N}, c_1, ..., c_{N}\}$ — Tracheid normalized to $N$ cells. Where:
+$R(t,y) =d \cup c = \lbrace d_1, ... , d_{N}, c_1, ..., c_{N}\rbrace$ — Tracheid normalized to $N$ cells. Where:
 
 $d_i=d_i(t,y)$ — Diameter of the $i^{th}$ cell in normalized tracheid
 
