@@ -1,12 +1,12 @@
 Input Data:
 
-$T=\left\{ t_1, ..., t_7 \right\}$ — Set of trees.
+$T=\{ t_1, ..., t_7 \}$ — Set of trees.
 
-$Y(t)=\left\{ y_{t1}, ..., y_{tn_t} \right\}$ — Set of years fow which the meassurements for the tree $t$ are available,  $t \in T$
+$Y(t)=\{ y_{t1}, ..., y_{tn_t} \}$ — Set of years fow which the meassurements for the tree $t$ are available,  $t \in T$
 
 $Y=\bigcup_{t \in T} Y(t)$ — Set of all years for witch the meassurements are available.
 
-$T(y)=\left\{ t_{y1}, ..., t_{ym_y} \right\}$ — Set of trees for which the meassurements for the year $y$ are availvable, $y \in Y$
+$T(y)=\{ t_{y1}, ..., t_{ym_y} \}$ — Set of trees for which the meassurements for the year $y$ are availvable, $y \in Y$
 
 $\left (T \equiv \bigcup_{y \in Y} T(y) \right )$
 
@@ -40,7 +40,7 @@ $c = \{c_1, ..., c_N\}$ — Normilized to N cells data about tracheid cell wall 
 
 Clusturing objects description:
 
-$R(t,y) =d \cup c = \left\{ d_1, ... , d_{N}, c_1, ..., c_{N}\right\}$ — Tracheid normalized to $N$ cells. Where:
+$R(t,y) =d \cup c = \{ d_1, ... , d_{N}, c_1, ..., c_{N}\}$ — Tracheid normalized to $N$ cells. Where:
 
 $d_i=d_i(t,y)$ — Diameter of the $i^{th}$ cell in normalized tracheid
 
