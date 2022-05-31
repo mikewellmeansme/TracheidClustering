@@ -28,7 +28,8 @@ $e^* = \{\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{r
 
 
 $e = \{e_1, ..., e_N\}$ — Normilized to N cells tracheid data, where 
-$e_i = \frac{1}{\varepsilon} \sum_{j=\varepsilon \cdot (i-1)+1}^{\varepsilon \cdot i}e^{*}_j, i=\overline{1, N}$
+
+$$e_i = \frac{1}{\varepsilon} \sum_{j=\varepsilon \cdot (i-1)+1}^{\varepsilon \cdot i}e^{*}_j, i=\overline{1, N}$$
 
 Using this procedure, we obtain:
 
@@ -54,16 +55,16 @@ Clustering Methods description:
 
 Method A:
 
-1. $R^A(y)=\frac{1}{\left| T(y) \right|}\sum_{t\in T(y)}R(t,y)$,   $y\in Y$
+1. $$ R^A(y)=\frac{1}{\left| T(y) \right|}\sum_{t\in T(y)}R(t,y), y\in Y $$
 
-2. $R_{mean}^A=\frac{1}{\sum_{t\in T}\left| Y(t)\right|}\sum_{t\in T}\sum_{y\in Y(t)}R(t,y)$
+2. $$R_{mean}^A=\frac{1}{\sum_{t\in T}\left| Y(t)\right|}\sum_{t\in T}\sum_{y\in Y(t)}R(t,y)$$
 
-3. $O_A(y)=\frac{R^A(y)}{R_{mean}^A}$,   $y\in Y$
+3. $$O_A(y)=\frac{R^A(y)}{R_{mean}^A}, y\in Y$$
 
 Method B:
 
-1. $R^B(t)=\frac{1}{\left| Y(t) \right|}\sum_{y\in Y(t)}R(t,y)$,   $t\in T$
+1. $$R^B(t)=\frac{1}{\left| Y(t) \right|}\sum_{y\in Y(t)}R(t,y), t\in T$$
 
-2. $o_B(t,y)=\frac{R(t,y)}{R^B(t)}$,   $t\in T, y\in Y(t)$
+2. $$o_B(t,y)=\frac{R(t,y)}{R^B(t)}, t\in T, y\in Y(t)$$
 
-3. $O_B(y)=\frac{1}{\left| T(y) \right|}\sum_{t\in T(y)}o_B(t,y)$,   $y\in Y$
+3. $$O_B(y)=\frac{1}{\left| T(y) \right|}\sum_{t\in T(y)}o_B(t,y), y\in Y$$
