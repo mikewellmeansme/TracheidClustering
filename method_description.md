@@ -14,7 +14,7 @@ Normalization procedure description:
 
 $N$ — Number of cells for tracheid normalization.
 
-$e^{raw}(t,y)=\lbrace e^{raw}_1, ..., e^{raw}_{\varepsilon}\rbrace$ — Raw tracheid data where:
+$e^{raw}(t,y)=\lbrace e^{raw}_1, ..., e^{raw}_\varepsilon\rbrace$ — Raw tracheid data where:
 
 $e^{raw}_k = e^{raw}_k(t,y) \in \lbrace d^{raw}_k, c^{raw}_k\rbrace$
 
@@ -24,7 +24,8 @@ $c^{raw}_k=c^{raw}_k(t,y)$ — Cell wall thickness of the $k^{th}$ cell in raw t
 
 $k=\overline{1,\varepsilon}$, $t\in T, y\in Y(t)$
 
-$e^* = \lbrace\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{raw}_2}_{N}, ..., \underbrace{e^{raw}_{\varepsilon},...,e^{raw}_{\varepsilon}}_{N}\rbrace$ — Intermediate sequence.
+Intermediate sequence:
+$$e^* = \lbrace\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{raw}_2}_{N}, ..., \underbrace{e^{raw}_\varepsilon,...,e^{raw}_\varepsilon}_{N}\rbrace$$
 
 
 $e = \lbrace e_1, ..., e_N\rbrace$ — Normilized to N cells tracheid data, where 
