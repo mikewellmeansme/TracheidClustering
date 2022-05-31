@@ -25,6 +25,7 @@ $c^{raw}_k=c^{raw}_k(t,y)$ — Cell wall thickness of the $k^{th}$ cell in raw t
 $k=\overline{1,\varepsilon}$, $t\in T, y\in Y(t)$
 
 Intermediate sequence:
+
 $$e^* = \lbrace\underbrace{e^{raw}_1,...,e^{raw}_1}_{N},\underbrace{e^{raw}_2,...,e^{raw}_2}_{N}, ..., \underbrace{e^{raw}_\varepsilon,...,e^{raw}_\varepsilon}_{N}\rbrace$$
 
 
