@@ -41,7 +41,7 @@ $c = \{c_1, ..., c_N\}$ — Normilized to N cells data about tracheid cell wall 
 
 Clusturing objects description:
 
-$R(t,y) =d \cup c = \left\{ d_1, ... , d_{N}, c_1, ..., c_{N}\right\}$ — Tracheid normalized to $N$ cells. Where:
+$R(t,y) =d \cup c = \{ d_1, ... , d_{N}, c_1, ..., c_{N}\}$ — Tracheid normalized to $N$ cells. Where:
 
 $d_i=d_i(t,y)$ — Diameter of the $i^{th}$ cell in normalized tracheid
 
