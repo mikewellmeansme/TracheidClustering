@@ -63,7 +63,7 @@ class NormalizedTracheids:
             temp_data = self.normalized_df[self.normalized_df['Year']==year]
             temp_data = temp_data.drop(columns=['Year', 'Tree'])
             if len(temp_data) > self.year_threshold:
-                mean_objects_years[year] = temp_data.mean()#[1:]
+                mean_objects_years[year] = temp_data.mean()
         
         return mean_objects_years
 
@@ -74,14 +74,14 @@ class NormalizedTracheids:
         for tree in set(self.normalized_df['Tree']):
             temp_data = self.normalized_df[self.normalized_df['Tree']==tree]
             temp_data = temp_data.drop(columns=['Year', 'Tree'])
-            mean_objects_trees[tree] = temp_data.mean()#[1:]
+            mean_objects_trees[tree] = temp_data.mean()
         
         return mean_objects_trees
 
 
     def _get_mean_object_global(self):
         temp_data = self.normalized_df.drop(columns=['Year', 'Tree'])
-        mean_object_global = temp_data.mean()#[1:]
+        mean_object_global = temp_data.mean()
 
         return mean_object_global
     
@@ -127,7 +127,7 @@ class NormalizedTracheids:
             temp_data = temp_data.drop(columns=['Year', 'Tree'])
 
             if len(temp_data) > self.year_threshold:
-                objects_method_B[year] = temp_data.mean()#[1:]
+                objects_method_B[year] = temp_data.mean()
 
         objects_method_B = DataFrame(objects_method_B).transpose()
         objects_method_B = objects_method_B.reset_index().rename(columns={'index':'Year'})
@@ -139,7 +139,7 @@ class NormalizedTracheids:
         i = int(tree_column)
 
         columns = {_:f'D{_-i}' if _ < self.norm_to + 1 else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
-        columns[0] = 'Year' if not tree_column else 'Tree'
+        columns[0] = 'Tree' if tree_column else 'Year'
 
         if tree_column:
             columns[1] = 'Year'
