@@ -18,13 +18,13 @@ class NormalizedTracheids:
     norm_to: int = 15
     year_threshold: int = 3
     normalized_df : DataFrame = None
-    mean_objects_years: dict[str, Series] = None
-    mean_objects_trees: dict[str, Series] = None
+    mean_objects_years: dict[int, Series] = None
+    mean_objects_trees: dict[int, Series] = None
     mean_object_global: Series = None
     obects_for_clustering: dict[str, DataFrame] = None
 
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.normalized_df = self._get_normalized_df()
 
         self.mean_objects_years = self._get_mean_object_years()
@@ -34,19 +34,19 @@ class NormalizedTracheids:
         self.obects_for_clustering = self._get_obects_for_clustering()
     
 
-    def to_csv(self, save_path):
+    def to_csv(self, save_path: str) -> None:
         self.normalized_df.to_csv(f'{save_path}/{self.name}_normalized_df.csv', index=False)
         self.obects_for_clustering['Method A'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_A.csv', index=False)
         self.obects_for_clustering['Method B'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_B.csv', index=False)
     
 
-    def to_excel(self, save_path):
+    def to_excel(self, save_path: str) -> None:
         self.normalized_df.to_excel(f'{save_path}/{self.name}_normalized_df.xlsx', index=False)
         self.obects_for_clustering['Method A'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_A.xlsx', index=False)
         self.obects_for_clustering['Method B'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_B.xlsx', index=False)
 
 
-    def __get_columns(self, tree_column=True):
+    def __get_columns(self, tree_column:bool = True) -> dict[int, str]:
         i = int(tree_column)
 
         columns = {_:f'D{_-i}' if _ < self.norm_to + 1 else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
@@ -58,7 +58,7 @@ class NormalizedTracheids:
         return columns
     
 
-    def _get_normalized_df(self):
+    def _get_normalized_df(self) -> DataFrame:
 
         xlsx_file = ExcelFile(self.file_path)
 
@@ -84,7 +84,7 @@ class NormalizedTracheids:
         return normalized_df
 
 
-    def _get_mean_object_years(self):
+    def _get_mean_object_years(self) -> dict[int, Series]:
         mean_objects_years = dict()
 
         for year in set(self.normalized_df['Year']):
@@ -96,7 +96,7 @@ class NormalizedTracheids:
         return mean_objects_years
 
 
-    def _get_mean_object_trees(self):
+    def _get_mean_object_trees(self) -> dict[int, Series]:
         mean_objects_trees = dict()
 
         for tree in set(self.normalized_df['Tree']):
@@ -107,14 +107,14 @@ class NormalizedTracheids:
         return mean_objects_trees
 
 
-    def _get_mean_object_global(self):
+    def _get_mean_object_global(self) -> Series:
         temp_data = self.normalized_df.drop(columns=['Year', 'Tree'])
         mean_object_global = temp_data.mean()
 
         return mean_object_global
     
 
-    def _get_obects_for_clustering(self):
+    def _get_obects_for_clustering(self) -> dict[str, DataFrame]:
 
         obects_for_clustering = {
             'Method A': self._method_A(),
@@ -124,7 +124,7 @@ class NormalizedTracheids:
         return obects_for_clustering
 
 
-    def _method_A(self):
+    def _method_A(self) -> DataFrame:
         objects_method_A = []
 
         columns = self.__get_columns(False)
@@ -137,7 +137,7 @@ class NormalizedTracheids:
         return objects_method_A
 
 
-    def _method_B(self):
+    def _method_B(self) -> DataFrame:
 
         objects_method_B = dict()
 
