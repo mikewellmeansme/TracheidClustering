@@ -1,3 +1,5 @@
+import imp
+from sqlite3 import DatabaseError
 from pandas import (
     ExcelFile,
     DataFrame,
@@ -7,6 +9,7 @@ from pandas import (
 from dataclasses import dataclass
 
 from utils.functions import get_normalized_list
+from utils.correlation import dropna_spearmanr
 
 
 @dataclass
@@ -22,6 +25,7 @@ class NormalizedTracheids:
     mean_objects_trees: dict[int, Series] = None
     mean_object_global: Series = None
     obects_for_clustering: dict[str, DataFrame] = None
+    methods_comparison: DataFrame = None
 
 
     def __post_init__(self) -> None:
@@ -32,24 +36,28 @@ class NormalizedTracheids:
         self.mean_object_global = self._get_mean_object_global()
 
         self.obects_for_clustering = self._get_obects_for_clustering()
+
+        self.methods_comparison = self._get_methods_comparison()
     
 
     def to_csv(self, save_path: str) -> None:
         self.normalized_df.to_csv(f'{save_path}/{self.name}_normalized_df.csv', index=False)
         self.obects_for_clustering['Method A'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_A.csv', index=False)
         self.obects_for_clustering['Method B'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_B.csv', index=False)
+        self.methods_comparison.to_csv(f'{save_path}/{self.name}_methods_comparison.csv', index=False)
     
 
     def to_excel(self, save_path: str) -> None:
         self.normalized_df.to_excel(f'{save_path}/{self.name}_normalized_df.xlsx', index=False)
         self.obects_for_clustering['Method A'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_A.xlsx', index=False)
         self.obects_for_clustering['Method B'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_B.xlsx', index=False)
+        self.methods_comparison.to_excel(f'{save_path}/{self.name}_methods_comparison.xlsx', index=False)
 
 
     def __get_columns(self, tree_column:bool = True) -> dict[int, str]:
         i = int(tree_column)
 
-        columns = {_:f'D{_-i}' if _ < self.norm_to + 1 else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
+        columns = {_:f'D{_-i}' if _ < self.norm_to + 1 + i else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
         columns[0] = 'Tree' if tree_column else 'Year'
 
         if tree_column:
@@ -161,3 +169,16 @@ class NormalizedTracheids:
         objects_method_B = objects_method_B.reset_index().rename(columns={'index':'Year'})
 
         return objects_method_B
+    
+
+    def _get_methods_comparison(self) -> DataFrame:
+        r_coeffs = []
+        p_values = []
+        columns = self.obects_for_clustering['Method A'].drop(columns=['Year']).columns
+        for column in columns:
+            _c, _p = dropna_spearmanr(self.obects_for_clustering['Method A'][column], self.obects_for_clustering['Method B'][column])
+            r_coeffs.append(_c)
+            p_values.append(_p)
+
+        spearman_corr_df = DataFrame({'Feature':columns, 'Spearman R': r_coeffs, 'P-value': p_values})
+        return spearman_corr_df
