@@ -2,11 +2,11 @@ Input Data:
 
 $T=\lbrace t_1, ..., t_7 \rbrace$ — Set of trees.
 
-$Y(t)=\lbrace y_{t1}, ..., y_{tn_t} \rbrace$ — Set of years fow which the meassurements for the tree $t$ are available,  $t \in T$
+$Y(t)=\lbrace y_{t1}, ..., y_{tn_t} \rbrace$ — Set of years for which the measurements for the tree $t$ are available,  $t \in T$
 
-$Y=\bigcup_{t \in T} Y(t)$ — Set of all years for witch the meassurements are available.
+$Y=\bigcup_{t \in T} Y(t)$ — Set of all years for which the measurements are available.
 
-$T(y)=\lbrace t_{y1}, ..., t_{ym_y} \rbrace$ — Set of trees for which the meassurements for the year $y$ are availvable, $y \in Y$
+$T(y)=\lbrace t_{y1}, ..., t_{ym_y} \rbrace$ — Set of trees for which the measurements for the year $y$ are availvable, $y \in Y$
 
 $\left (T \equiv \bigcup_{y \in Y} T(y) \right )$
 
@@ -41,7 +41,7 @@ $c = \lbrace c_1, ..., c_N\rbrace$ — Normilized to N cells data about tracheid
 
 
 
-Clusturing objects description:
+Normalized tracheid description:
 
 $R(t,y) =d \cup c = \lbrace d_1, ... , d_{N}, c_1, ..., c_{N}\rbrace$ — Tracheid normalized to $N$ cells. Where:
 
@@ -52,7 +52,7 @@ $c_i=c_i(t,y)$ — Cell wall thickness of the $i^{th}$ cell in normalized trache
 $i=\overline{1,N}$, $t\in T, y\in Y(t)$
 
 
-Clustering Methods description:
+Description of the methods for forming objects for clustering:
 
 
 Method A:
