@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+from zhutils import correlation
 
 def dropna(x,y):
     x, y = np.array(x), np.array(y)
@@ -64,5 +64,12 @@ def get_moving_sum(df, window=7):
     result['Day'] = day
     return result
 
+
 def list_to_cumulative(lst):
     return [np.nansum(lst[:i+1]) for i in range(len(lst))]
+
+
+def get_median_index(df: pd.DataFrame):
+    ranks = df.rank(pct=True)
+    close_to_median = abs(ranks - 0.5)
+    return close_to_median.idxmin()
