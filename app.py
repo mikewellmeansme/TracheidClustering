@@ -43,13 +43,13 @@ class Application:
         self.__get_area_index__()
     
 
-    def train_clusterer(self, method: str ='A') -> None:
+    def train_clusterer(self, method: str ='A', nclusters: int = 4) -> None:
 
         if method.upper() not in 'AB':
             raise Exception(f'Wrong method given! Expected A or B, got {method}!')
 
         clusterer = Clusterer()
-        clusterer.fit(self.normalized_tracheids.obects_for_clustering[f'Method {method}'], 4)
+        clusterer.fit(self.normalized_tracheids.obects_for_clustering[f'Method {method}'], nclusters)
         self.clusterer = clusterer
 
         pred = clusterer.predict(self.normalized_tracheids.obects_for_clustering[f'Method {method}'])
