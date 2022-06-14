@@ -1,24 +1,21 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import pandas as pd
 
 from itertools import product
 from numpy import (
     array,
     ceil
 )
-from pandas import (
-    DataFrame,
-    read_excel,
-    to_datetime
-)
+
 
 from normalized_tracheids import NormalizedTracheids
 from clusterer import Clusterer
-from utils.functions import (
-    get_moving_avg,
-    get_median_index
-)
+from zhutils.daily_dataframe import DailyDataFrame
+from zhutils.superb_dataframe import SuperbDataFrame
 
+
+pd.options.mode.chained_assignment = None
 
 default_xticks = [1, 5, 10, 15, 17, 21, 26, 31]
 default_xticklabels = [1, 5, 10, 15, 1, 5, 10, 15]
@@ -27,19 +24,23 @@ default_xticklabels = [1, 5, 10, 15, 1, 5, 10, 15]
 class Application:
     normalized_tracheids : NormalizedTracheids
     clusterer : Clusterer
-    clustered_objects: DataFrame
-    area_first_day: int = 121
-    area_last_day: int = -92
+    clustered_objects: pd.DataFrame
+    climate: DailyDataFrame
+    growth_season_start_month: int = 5
+    growth_season_end_month: int = 9
+    cut_сlimate: pd.DataFrame
+    area: pd.DataFrame
 
 
     def __init__(self, tracheid_name,  tracheid_path, trees,
-                 temperature_path, temperature_sheet, precipitation_path, precipitation_sheet) -> None:
-        self.temp = read_excel(precipitation_path, sheet_name=precipitation_sheet)
-        self.prec = read_excel(temperature_path, sheet_name=temperature_sheet)
+                 climate_path) -> None:
+        climate = pd.read_csv(climate_path)
+        self.climate = DailyDataFrame(climate)
 
         normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
         self.normalized_tracheids = normalized_tracheids
         self.train_clusterer()
+        self.__get_area_index__()
     
 
     def train_clusterer(self, method: str ='A') -> None:
@@ -135,40 +136,81 @@ class Application:
         return result
     
 
-    def get_area_index(self):
-        pass
+    def __get_cut_climate__(self) -> None:
+        r"""
+        Function for creating a climate dataframe which was cut from the start to the end of growth season
+        and contains:
+            rolled temperature
+            cumulative presipitation
+            scaled rolled temperature
+            scaled cumulative presipitation
+            absolute value of difference between scaled temperature and presipitation
+        """
+        climate_df = DailyDataFrame(self.climate.copy())
+        # Turning daily precipitation to cumulative presipitetion
+        climate_df['Prec_cumsum'] = climate_df.fillna(0).groupby('Year')['Precipitation'].cumsum()
+
+        # Smoothing temperature and cumulative precipitation with 7-day mooving average
+        moving_avg = climate_df.moving_avg(['Temperature', 'Prec_cumsum'])
+        climate_df['Temp_rolling'] = moving_avg['Temperature']
+        climate_df['Prec_cumsum_rolling'] = moving_avg['Prec_cumsum']
+
+        # Cutting climate from the start to the end of growth season
+        start = self.growth_season_start_month
+        end = self.growth_season_end_month
+        cut_сlimate_df = climate_df[(start <= climate_df['Month']) & (climate_df['Month'] <= end)]
+        cut_сlimate_df = cut_сlimate_df.reset_index(drop=True)
+
+        temp_max = cut_сlimate_df['Temp_rolling'].max()
+        temp_min = cut_сlimate_df['Temp_rolling'].min()
+        prec_max = cut_сlimate_df['Prec_cumsum_rolling'].max()
+        prec_min = cut_сlimate_df['Prec_cumsum_rolling'].min()
+
+        # Scaling temperature and precipitation with MinMax approach
+        cut_сlimate_df['Temp_scaled'] = (cut_сlimate_df['Temp_rolling'] - temp_min) / (temp_max - temp_min)
+        cut_сlimate_df['Prec_scaled'] = (cut_сlimate_df['Prec_cumsum_rolling'] - prec_min) / (prec_max - prec_min)
+        
+        # Calculating the difference between scaled temperature and presipitation
+        cut_сlimate_df['Temp_prec_difference'] = abs(cut_сlimate_df['Temp_scaled'] - cut_сlimate_df['Prec_scaled'])
+
+        self.cut_сlimate = cut_сlimate_df
+
+
+    def __get_area_index__(self) -> None:
+        r"""
+        Function for calculating Area Index for the given climate data
+        """
+        self.__get_cut_climate__()
+        cut_сlimate_df = self.cut_сlimate
+        area_df = cut_сlimate_df[['Year', 'Temp_prec_difference']].groupby('Year').sum().reset_index()
+        area_df = area_df.rename(columns={'Temp_prec_difference': 'Area'})
+
+        area_df = area_df.merge(self.clustered_objects[['Year', 'Class']], on='Year', how='left')
+        self.area = area_df
     
 
     def plot_area_per_class(self):
+        classes = set(self.clustered_objects['Class'])
+        nclasses = len(classes)
 
-        date_df = self.temp[['Month', 'Day']]
-        date_df['Year'] = [2000 for _ in range(len(date_df))]
-        x = to_datetime(date_df)[self.first_day:self.last_day]
-
-        fig, ax = plt.subplots(nrows=4, ncols=2, dpi=300, figsize=(10, 12))
+        fig, ax = plt.subplots(nrows=nclasses, ncols=2, dpi=300, figsize=(10, 3 * nclasses))
         plt.subplots_adjust(bottom=0.03, top=0.95)
-        min_temp_moving_avg = get_moving_avg(self.temp).iloc[self.first_day:self.last_day].drop(columns=['Month', 'Day']).reset_index(drop=True)
-        min_prec_moving_avg_cumsum = get_moving_avg(self.prec.fillna(0).cumsum()).drop(columns=['Month', 'Day']).iloc[self.first_day:self.last_day].reset_index(drop=True)
 
-
-        temp_max = min_temp_moving_avg.max().max()
-        prec_max = min_prec_moving_avg_cumsum.max().max()
-        temp_min = min_temp_moving_avg.min().min()
-        prec_min = min_prec_moving_avg_cumsum.min().min()
-
-        scaled_min_temps = (min_temp_moving_avg - temp_min) / (temp_max - temp_min)
-        scaled_min_precs =  (min_prec_moving_avg_cumsum- prec_min) / (prec_max - prec_min)
-
-
-        for i in range(4):
-            selected = areas_df[areas_df['Class 4'] == i]
-            median_year_index = selected.apply(get_median_index, 0)['Area']
+        for i in range(nclasses):
+            selected = SuperbDataFrame(self.area[self.area['Class'] == i])
+            median_year_index = selected.median_index()['Area']
             median_year = int(selected.loc[median_year_index]['Year'])
 
-            y_temp = min_temp_moving_avg[median_year]
-            y_prec = min_prec_moving_avg_cumsum[median_year]
-            y_temp_sc = scaled_min_temps[median_year]
-            y_prec_sc = scaled_min_precs[median_year]
+            median_year_climate = self.cut_сlimate[self.cut_сlimate['Year'] == median_year]
+
+            date_df = median_year_climate[['Month', 'Day']]
+            date_df['Year'] = [2000 for _ in range(len(date_df))]
+            x = pd.to_datetime(date_df)
+
+            y_temp = median_year_climate['Temp_rolling']
+            y_prec = median_year_climate['Prec_cumsum_rolling']
+            y_temp_sc = median_year_climate['Temp_scaled']
+            y_prec_sc = median_year_climate['Prec_scaled']
 
             ax[i, 0].plot(x, y_temp, color='red')
             
@@ -183,8 +225,8 @@ class Application:
             
             ax[i, 0].set_ylabel('Temperature (°C)')
             ax2.set_ylabel('Precipitation (mm)')
-            ax[i, 0].set_zorder(1)  # default zorder is 0 for ax1 and ax2
-            ax[i, 0].patch.set_visible(False)  # prevents ax1 from hiding ax2
+            ax[i, 0].set_zorder(1)               # default zorder is 0 for ax1 and ax2
+            ax[i, 0].patch.set_visible(False)    # prevents ax1 from hiding ax2
 
             locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
             formatter = mdates.ConciseDateFormatter(locator)
@@ -192,7 +234,6 @@ class Application:
             ax[i, 0].xaxis.set_major_formatter(formatter)
             ax[i, 1].xaxis.set_major_locator(locator)
             ax[i, 1].xaxis.set_major_formatter(formatter)
-            #ax.set_xlim([date(2000, 4, 1), date(2000, 10, 30)])
             ax[i, 0].set_ylim([0, 30])
             ax[i, 1].set_ylim([0, 1.1])
 
