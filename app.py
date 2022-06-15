@@ -60,6 +60,12 @@ class Application:
 
         self.clustered_objects = df
 
+    
+    def change_class_names(self, number_to_name: dict[int, int]) -> None:
+        self.clusterer.change_class_names(number_to_name)
+        self.clustered_objects['Class'] = self.clusterer.convert_class_number_to_name(self.clustered_objects['Class'])
+        self.area['Class'] = self.clusterer.convert_class_number_to_name(self.area['Class'])
+
 
     def plot_сlass_mean_objects(self, class_titles: list = None,
                                 norm_to=15, ylim0=.75, ylim1=1.25,
