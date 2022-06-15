@@ -23,7 +23,7 @@ class Clusterer:
     def predict(self, df: DataFrame) -> list:
         data = self.__df_to_array__(df)
         predictions = self.__model__.predict(data)
-        result = self.__convert_class_number_to_name__(predictions)
+        result = self.convert_class_number_to_name(predictions)
         return result
     
 
@@ -31,7 +31,7 @@ class Clusterer:
         self.__number_to_name__ = number_to_name
     
     
-    def __convert_class_number_to_name__(self, class_numbers: list):
+    def convert_class_number_to_name(self, class_numbers: list):
         if not self.__number_to_name__:
             return class_numbers
         class_names = [self.__number_to_name__[num] for num in class_numbers]
