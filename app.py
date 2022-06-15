@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 
+from datetime import date
 from itertools import product
 from numpy import (
     array,
@@ -189,15 +190,50 @@ class Application:
         self.area = area_df
     
 
-    def plot_area_per_class(self):
+    def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
+                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
         classes = set(self.clustered_objects['Class'])
         nclasses = len(classes)
+
+        locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+        formatter = mdates.ConciseDateFormatter(locator)
 
         fig, ax = plt.subplots(nrows=nclasses, ncols=2, dpi=300, figsize=(10, 3 * nclasses))
         plt.subplots_adjust(bottom=0.03, top=0.95)
 
         for i in range(nclasses):
+            ax2 = ax[i, 0].twinx()
+
+            ax[i, 0].set_ylabel('Temperature (°C)')
+            ax2.set_ylabel('Precipitation (mm)')
+            ax[i, 0].set_zorder(1)               # default zorder is 0 for ax1 and ax2
+            ax[i, 0].patch.set_visible(False)    # prevents ax1 from hiding ax2
+
+            ax[i, 0].set_xlim(xlim)
+            ax[i, 1].set_xlim(xlim)
+            ax[i, 0].set_ylim(temp_ylim)
+            ax2.set_ylim(prec_ylim)
+            ax[i, 1].set_ylim([0, 1.1])
+
+            ax[i, 0].set_title(f'{i+1} Class')
+            ax[i, 1].set_title(f'{i+1} Class')
+            ax[i, 1].set_ylabel('Climate factors (rel. units)')
+            ax[i, 1].yaxis.set_label_position("right")
+
+            ax[i, 1].yaxis.tick_right()
+            
+            ax2.xaxis.set_major_locator(locator)
+            ax2.xaxis.set_major_formatter(formatter)
+            ax[i, 0].xaxis.set_major_locator(locator)
+            ax[i, 0].xaxis.set_major_formatter(formatter)
+            ax[i, 1].xaxis.set_major_locator(locator)
+            ax[i, 1].xaxis.set_major_formatter(formatter)
+
             selected = SuperbDataFrame(self.area[self.area['Class'] == i])
+
+            if len(selected) == 0:
+                continue
+            
             median_year_index = selected.median_index()['Area']
             median_year = int(selected.loc[median_year_index]['Year'])
 
@@ -214,36 +250,12 @@ class Application:
 
             ax[i, 0].plot(x, y_temp, color='red')
             
-            ax2 = ax[i, 0].twinx()
             ax2.plot(x, y_prec, color='blue')
 
             ax[i, 1].plot(x, y_temp_sc, c='red')
             ax[i, 1].plot(x, y_prec_sc, c='blue')
             ax[i, 1].fill_between(x, y_temp_sc, y_prec_sc, color='black', alpha=0.2)
-
-            ax2.set_ylim([0, 350])
             
-            ax[i, 0].set_ylabel('Temperature (°C)')
-            ax2.set_ylabel('Precipitation (mm)')
-            ax[i, 0].set_zorder(1)               # default zorder is 0 for ax1 and ax2
-            ax[i, 0].patch.set_visible(False)    # prevents ax1 from hiding ax2
-
-            locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-            formatter = mdates.ConciseDateFormatter(locator)
-            ax[i, 0].xaxis.set_major_locator(locator)
-            ax[i, 0].xaxis.set_major_formatter(formatter)
-            ax[i, 1].xaxis.set_major_locator(locator)
-            ax[i, 1].xaxis.set_major_formatter(formatter)
-            ax[i, 0].set_ylim([0, 30])
-            ax[i, 1].set_ylim([0, 1.1])
-
-            ax[i, 0].set_title(f'{i+1} Class')
-            ax[i, 1].set_title(f'{i+1} Class')
-            ax[i, 1].set_ylabel('Climate factors (rel. units)')
-            ax[i, 1].yaxis.set_label_position("right")
-
-            ax[i, 1].yaxis.tick_right()
-
             loc_area = sum(abs(y_temp_sc - y_prec_sc))
             ax[i, 0].text(0.15, 0.9, f'Year {median_year}', horizontalalignment='center', verticalalignment='center', transform=ax[i, 0].transAxes)
             ax[i, 1].text(0.15, 0.9, f'Year {median_year}', horizontalalignment='center', verticalalignment='center', transform=ax[i, 1].transAxes)
