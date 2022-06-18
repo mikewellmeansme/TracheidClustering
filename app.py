@@ -137,5 +137,15 @@ class Application:
         
         return result
     
-
     
+    def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
+                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
+        
+        fig, ax = self.climate_matcher.plot_area_per_class(
+            clustered_objects=self.clustered_objects,
+            xlim=xlim,
+            temp_ylim=temp_ylim,
+            prec_ylim=prec_ylim
+        )
+
+        return fig, ax

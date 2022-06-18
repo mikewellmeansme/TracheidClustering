@@ -18,12 +18,12 @@ class ClimateMatcher:
     area: pd.DataFrame
     clustered_objects: pd.DataFrame
 
+
     def __init__(self, climate_path: str, clustered_objects: pd.DataFrame) -> None:
         
         climate = pd.read_csv(climate_path)
         self.climate = DailyDataFrame(climate)
-        self.clustered_objects = clustered_objects
-        self.__get_area_index__()
+        self.__get_area_index__(clustered_objects)
     
 
     def change_class_names(self, clusterer: Clusterer) -> None:
@@ -70,7 +70,7 @@ class ClimateMatcher:
         self.cut_сlimate = cut_сlimate_df
 
 
-    def __get_area_index__(self) -> None:
+    def __get_area_index__(self, clustered_objects: pd.DataFrame) -> None:
         r"""
         Function for calculating Area Index for the given climate data
         """
@@ -79,13 +79,14 @@ class ClimateMatcher:
         area_df = cut_сlimate_df[['Year', 'Temp_prec_difference']].groupby('Year').sum().reset_index()
         area_df = area_df.rename(columns={'Temp_prec_difference': 'Area'})
 
-        area_df = area_df.merge(self.clustered_objects[['Year', 'Class']], on='Year', how='left')
+        area_df = area_df.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
         self.area = area_df
     
 
-    def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
+    def plot_area_per_class(self, clustered_objects: pd.DataFrame,
+                            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
                             temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
-        classes = set(self.clustered_objects['Class'])
+        classes = set(clustered_objects['Class'])
         nclasses = len(classes)
 
         locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
