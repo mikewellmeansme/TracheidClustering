@@ -1,4 +1,4 @@
-$\LaTeX$ formulas in Markdown files may not be displayed correctly on github, in which case please use the [description in PDF](mathematical_description.pdf).
+$\LaTeX$ formulas in Markdown files may not be displayed correctly on github, in which case please use the [description in PDF](mathematical_description/mathematical_description.pdf).
 
 **Input Data**:
 
