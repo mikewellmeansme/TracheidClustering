@@ -20,7 +20,9 @@ LaTeX formulas in Markdown files may not be displayed correctly on github, in wh
 
     $c^{raw}_k=c^{raw}_k(t,y)$ — Cell wall thickness of the $k^{th}$ cell in a raw tracheid
 
-    $k=\overline{1,\varepsilon}$, $t\in T, y\in Y(t)$
+    $\varepsilon=\varepsilon(t,y)$ — Number of cells in $e^{raw}(t,y)$
+
+    $k=\overline{1,\varepsilon}$, $t\in T$, $y\in Y(t)$
 
 6. $N$ — Number of cells for tracheid normalization.
 
