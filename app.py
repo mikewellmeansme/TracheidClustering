@@ -9,11 +9,9 @@ from numpy import (
     ceil
 )
 
-
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
-from zhutils.daily_dataframe import DailyDataFrame
 
 
 pd.options.mode.chained_assignment = None
@@ -137,7 +135,7 @@ class Application:
         
         return result
     
-    
+
     def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
                             temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
         
