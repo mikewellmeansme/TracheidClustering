@@ -1,5 +1,3 @@
-import imp
-from sqlite3 import DatabaseError
 from pandas import (
     ExcelFile,
     DataFrame,
@@ -7,9 +5,25 @@ from pandas import (
     concat
 )
 from dataclasses import dataclass
+from zhutils.correlation import dropna_spearmanr
 
-from utils.functions import get_normalized_list
-from utils.correlation import dropna_spearmanr
+
+def get_normalized_list(x: list, norm : int):
+    """
+    Функция получения нормированного списка
+    :param x: список для нормирования
+    :param norm: норма
+    :return: l_norm - нормированный к e список l
+    """
+    l_raw = []  # промежуточный список
+    n = len(x)
+    for i in range(n):
+        for j in range(norm):
+            l_raw += [x[i]]
+    l_norm = []
+    for i in range(norm):
+        l_norm += [1 / n * sum([l_raw[j] for j in range(n * i, n * (i + 1))])]
+    return l_norm
 
 
 @dataclass
@@ -176,7 +190,10 @@ class NormalizedTracheids:
         p_values = []
         columns = self.obects_for_clustering['Method A'].drop(columns=['Year']).columns
         for column in columns:
-            _c, _p = dropna_spearmanr(self.obects_for_clustering['Method A'][column], self.obects_for_clustering['Method B'][column])
+            _c, _p = dropna_spearmanr(
+                self.obects_for_clustering['Method A'][column],
+                self.obects_for_clustering['Method B'][column]
+            )
             r_coeffs.append(_c)
             p_values.append(_p)
 
