@@ -1,8 +1,6 @@
-/input
-/output
+app/input
+app/output
 .Rhistory
 __pycache__
-climate.py
 .idea
-/notebooks/playground.ipynb
 playground.ipynb
