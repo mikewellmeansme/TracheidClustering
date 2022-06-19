@@ -7,6 +7,7 @@ from numpy import (
     array,
     ceil
 )
+from scipy.stats import mstats
 
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
@@ -136,7 +137,7 @@ class Application:
     
 
     def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
-                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
+                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]) -> tuple:
         
         fig, ax = self.climate_matcher.plot_area_per_class(
             clustered_objects=self.clustered_objects,
@@ -146,3 +147,55 @@ class Application:
         )
 
         return fig, ax
+    
+
+    def plot_class_boxplot(self, feature: str = 'D') -> tuple:
+        r"""
+        Params:
+            feature: D or CWT
+        """
+        if feature not in ['D', 'CWT']:
+            raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
+
+        classes = set(self.clustered_objects['Class'])
+        nclasses = len(classes)
+
+        groups = self.clustered_objects.groupby('Class').groups
+        columns = [column for column in self.clustered_objects.columns if feature in column]
+
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+        ax.boxplot([list(self.clustered_objects.loc[groups[j], columns].mean(axis=1)) for j in range(nclasses)])
+        ax.set_title('Diam')
+        
+        return fig, ax
+    
+
+    def get_class_kruskalwallis(self, feature: str = 'D') -> pd.DataFrame:
+        r"""
+        Params:
+            feature: D or CWT
+        """
+        if feature not in ['D', 'CWT']:
+            raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
+
+        classes = set(self.clustered_objects['Class'])
+        nclasses = len(classes)
+
+        groups = self.clustered_objects.groupby('Class').groups
+        columns = [column for column in self.clustered_objects.columns if feature in column]
+
+        stats, p_values = [], []
+
+        for column in columns:
+            s, p = mstats.kruskalwallis(
+                *[list(self.clustered_objects.loc[groups[j], column]) for j in range(nclasses)]
+            )
+            stats.append(s)
+            p_values.append(p)
+        
+        result = pd.DataFrame({
+            'Feature': columns,
+            'Statistic': stats,
+            'P-values': p_values
+        })
+        return result
