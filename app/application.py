@@ -64,8 +64,7 @@ class Application:
                                 norm_to=15, ylim0=.75, ylim1=1.25,
                                 xticks=default_xticks, xticklabels=default_xticklabels) -> tuple:
 
-        classes = set(self.clustered_objects['Class'])
-        nclasses = len(classes)
+        nclasses = self.__get_nclasses__()
 
         if class_titles and len(class_titles) != nclasses:
             raise Exception(f'Number of class titles ({len(class_titles)}) is not equal to number of classes ({nclasses})!')
@@ -154,18 +153,13 @@ class Application:
         Params:
             feature: D or CWT
         """
-        if feature not in ['D', 'CWT']:
-            raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
-
-        classes = set(self.clustered_objects['Class'])
-        nclasses = len(classes)
-
-        groups = self.clustered_objects.groupby('Class').groups
-        columns = [column for column in self.clustered_objects.columns if feature in column]
+        nclasses = self.__get_nclasses__()
+        groups = self.__get_classes_rows__()
+        columns = self.__get_feature_columns__(feature)
 
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
         ax.boxplot([list(self.clustered_objects.loc[groups[j], columns].mean(axis=1)) for j in range(nclasses)])
-        ax.set_title('Diam')
+        ax.set_title(feature)
         
         return fig, ax
     
@@ -175,14 +169,9 @@ class Application:
         Params:
             feature: D or CWT
         """
-        if feature not in ['D', 'CWT']:
-            raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
-
-        classes = set(self.clustered_objects['Class'])
-        nclasses = len(classes)
-
-        groups = self.clustered_objects.groupby('Class').groups
-        columns = [column for column in self.clustered_objects.columns if feature in column]
+        nclasses = self.__get_nclasses__()
+        groups = self.__get_classes_rows__()
+        columns = self.__get_feature_columns__(feature)
 
         stats, p_values = [], []
 
@@ -199,3 +188,23 @@ class Application:
             'P-values': p_values
         })
         return result
+    
+    
+    def __get_nclasses__(self) -> int:
+        classes = set(self.clustered_objects['Class'])
+        nclasses = len(classes)
+        return nclasses
+    
+
+    def __get_classes_rows__(self) -> dict[int, list]:
+        groups = self.clustered_objects.groupby('Class').groups
+        return groups
+    
+    
+    def __get_feature_columns__(self, feature) -> list[str]:
+
+        if feature not in ['D', 'CWT']:
+            raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
+        
+        columns = [column for column in self.clustered_objects.columns if feature in column]
+        return columns
