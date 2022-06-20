@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
+from scipy.stats import mstats
 
 from datetime import date
 from zhutils.daily_dataframe import DailyDataFrame
@@ -16,13 +17,27 @@ class ClimateMatcher:
     cut_сlimate: pd.DataFrame
     area: pd.DataFrame
     clustered_objects: pd.DataFrame
+    climate_indexes: dict[pd.DataFrame]
 
 
-    def __init__(self, climate_path: str, clustered_objects: pd.DataFrame) -> None:
+    def __init__(self, climate_path: str, clustered_objects: pd.DataFrame, climate_indexes_paths: dict[str, str]) -> None:
         
         climate = pd.read_csv(climate_path)
         self.climate = DailyDataFrame(climate)
         self.__get_area_index__(clustered_objects)
+        self.climate_indexes = {
+            'Area': self.area
+        }
+        for index in climate_indexes_paths:
+            self.climate_indexes[index] = self.__load_climate_index__(
+                climate_indexes_paths[index]
+            ) 
+        
+
+    def __load_climate_index__(self, path):
+        df = pd.read_csv(path)
+        result = df.merge(self.area[['Year', 'Class']], on='Year', how='left')
+        return result
     
 
     def change_class_names(self, clusterer: Clusterer) -> None:
@@ -155,3 +170,91 @@ class ClimateMatcher:
             ax[i, 1].text(0.5, 0.5, f'{loc_area:.2f}', horizontalalignment='center', verticalalignment='center', transform=ax[i, 1].transAxes)
         
         return fig, ax
+
+
+    def boxplot_climate_index(self, index='PDSI', prev: bool = False,
+                              month: str = None, classes: list = None,
+                              ylims: list = None)-> tuple:
+        r"""
+        index: PDSI, Area, SPEI
+        """
+        self.__validate_inedx__(index)
+        classes = classes if classes else self.__get_classes__()
+        groups = self.__get_classes_rows__(self.climate_indexes[index])
+
+        if prev:
+            df = self.__get_shifted_df__(self.climate_indexes[index])
+        else:
+            df = self.climate_indexes[index]
+
+        column = month if month else index
+
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+        ax.boxplot([list(df.loc[groups[j]][column]) for j in classes])
+        title = f"{index} {month if month else ''}{' prev' if prev else ''}"
+        ax.set_title(title)
+        ax.set_xticklabels([cl + 1 for cl in classes])
+
+        if ylims:
+            ax.set_ylim(ylims)
+
+        return fig, ax
+
+
+    def get_climate_index_kruskalwallis(self, index='PDSI', prev: bool = False,
+                                        month: str = None, classes: list = None) -> tuple[float, float]:
+        r"""
+        index: PDSI, Area, SPEI
+        """
+        self.__validate_inedx__(index)
+        classes = classes if classes else self.__get_classes__()
+        groups = self.__get_classes_rows__(self.climate_indexes[index])
+
+        if prev:
+            df = self.__get_shifted_df__(self.climate_indexes[index])
+        else:
+            df = self.climate_indexes[index]
+
+        column = month if month else index
+
+        s, p = mstats.kruskalwallis(
+                *[list(df.loc[groups[j], column]) for j in classes]
+            )
+
+        return s, p
+    
+    def __get_climate_index_names__(self):
+        result = list(self.climate_indexes.keys())
+        return result
+    
+
+    def __validate_inedx__(self, index):
+        if index not in self.climate_indexes:
+            indexes = ', '.join(self.__get_climate_index_names__())
+            raise ValueError(f'Wrong feature given! Must be one of: {indexes}. Given: {index}')
+    
+
+    def __get_classes__(self) -> set[int]:
+        classes = set(self.area['Class'])
+        return classes
+
+
+    def __get_nclasses__(self) -> int:
+        classes = self.__get_classes__()
+        nclasses = len(classes)
+        return nclasses
+    
+
+    @staticmethod
+    def __get_shifted_df__(df) -> pd.DataFrame:
+        df_copy = df.copy()
+        columns = [col for col in df_copy.columns if col not in ['Year', 'Class']]
+        for column in columns:
+            df_copy[column] = df_copy[column].shift(1)
+        return df_copy
+
+
+    @staticmethod
+    def __get_classes_rows__(df:pd.DataFrame, ) -> dict[int, list]:
+        groups = df.groupby('Class').groups
+        return groups

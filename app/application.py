@@ -28,13 +28,13 @@ class Application:
 
 
     def __init__(self, tracheid_name: str,  tracheid_path: str,
-                 trees: list, climate_path: str) -> None:
+                 trees: list, climate_path: str, climate_indexes_paths: dict[str, str]) -> None:
 
         normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
         self.normalized_tracheids = normalized_tracheids
         self.train_clusterer()
 
-        self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects)
+        self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
     
 
     def train_clusterer(self, method: str ='A', nclusters: int = 4) -> None:
