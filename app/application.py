@@ -8,6 +8,7 @@ from numpy import (
     ceil
 )
 from scipy.stats import mstats
+from zhutils.superb_dataframe import SuperbDataFrame
 
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
@@ -201,6 +202,11 @@ class Application:
     def get_climate_index_kruskalwallis(self, *args, **kwargs) -> tuple[float, float]:
         s, p = self.climate_matcher.get_climate_index_kruskalwallis(*args, **kwargs)
         return s, p
+    
+
+    def get_chronology_comparison(self, crn_column) -> SuperbDataFrame:
+        result = self.climate_matcher.get_chronology_comparison(self.chronology, crn_column)
+        return result
     
     
     def __get_nclasses__(self) -> int:

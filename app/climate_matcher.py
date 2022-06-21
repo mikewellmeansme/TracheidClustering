@@ -20,7 +20,8 @@ class ClimateMatcher:
     climate_indexes: dict[pd.DataFrame]
 
 
-    def __init__(self, climate_path: str, clustered_objects: pd.DataFrame, climate_indexes_paths: dict[str, str]) -> None:
+    def __init__(self, climate_path: str, clustered_objects: pd.DataFrame, 
+                 climate_indexes_paths: dict[str, str]) -> None:
         
         climate = pd.read_csv(climate_path)
         self.climate = DailyDataFrame(climate)
@@ -174,7 +175,7 @@ class ClimateMatcher:
 
     def boxplot_climate_index(self, index='PDSI', prev: bool = False,
                               month: str = None, classes: list = None,
-                              ylims: list = None)-> tuple:
+                              ylims: list = None) -> tuple:
         r"""
         index: PDSI, Area, SPEI
         """
@@ -222,6 +223,15 @@ class ClimateMatcher:
             )
 
         return s, p
+    
+
+    def get_chronology_comparison(self, chronology: pd.DataFrame, crn_column: str) -> SuperbDataFrame:
+        result = chronology[['Year', crn_column]].set_index('Year').join(
+            [self.climate_indexes[index][['Year', index]].set_index('Year') for index in self.climate_indexes],
+            how='left'
+        )
+        return SuperbDataFrame(result.reset_index())
+
     
     def __get_climate_index_names__(self):
         result = list(self.climate_indexes.keys())
