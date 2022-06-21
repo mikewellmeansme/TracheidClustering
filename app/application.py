@@ -25,14 +25,17 @@ class Application:
     clusterer : Clusterer
     climate_matcher: ClimateMatcher
     clustered_objects: pd.DataFrame
+    chronology: pd.DataFrame
 
 
     def __init__(self, tracheid_name: str,  tracheid_path: str,
-                 trees: list, climate_path: str, climate_indexes_paths: dict[str, str]) -> None:
+                 trees: list, climate_path: str, climate_indexes_paths: dict[str, str], crn_path: str) -> None:
 
         normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
         self.normalized_tracheids = normalized_tracheids
         self.train_clusterer()
+
+        self.chronology = pd.read_csv(crn_path)
 
         self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
     
@@ -188,6 +191,16 @@ class Application:
             'P-values': p_values
         })
         return result
+    
+
+    def boxplot_climate_index(self, *args, **kwargs) -> tuple:
+        fig, ax = self.climate_matcher.boxplot_climate_index(*args, **kwargs)
+        return fig, ax
+    
+
+    def get_climate_index_kruskalwallis(self, *args, **kwargs) -> tuple[float, float]:
+        s, p = self.climate_matcher.get_climate_index_kruskalwallis(*args, **kwargs)
+        return s, p
     
     
     def __get_nclasses__(self) -> int:
