@@ -231,6 +231,21 @@ class Application:
             **kwargs
         )
         return fig, ax
+    
+
+    def boxplot_climate(self, **kwargs) -> tuple:
+        fig, ax = self.climate_matcher.boxplot_climate(
+            self.clustered_objects, **kwargs
+        )
+        return fig, ax
+    
+
+    def get_climate_kruskalwallis(self, **kwargs) -> tuple[float, float]:
+        s, p = self.climate_matcher.get_climate_kruskalwallis(
+            self.clustered_objects, **kwargs
+        )
+
+        return s, p
 
     
     def __get_nclasses__(self) -> int:

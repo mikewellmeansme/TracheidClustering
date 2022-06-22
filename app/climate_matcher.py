@@ -123,8 +123,7 @@ class ClimateMatcher:
             prec_ylim:
         """
 
-        classes = set(clustered_objects['Class'])
-        nclasses = len(classes)
+        nclasses = self.__get_nclasses__()
 
         locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
         formatter = mdates.ConciseDateFormatter(locator)
@@ -193,6 +192,133 @@ class ClimateMatcher:
             ax[i, 1].text(0.5, 0.5, f'{loc_area:.2f}', horizontalalignment='center', verticalalignment='center', transform=ax[i, 1].transAxes)
         
         return fig, ax
+    
+
+    def plot_mean_climate_pre_class(
+            self,
+            clustered_objects: pd.DataFrame,
+            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
+            temp_ylim: list = [0, 30],
+            prec_ylim: list = [0,350]
+        ) -> tuple:
+
+        r"""
+        Params:
+            clustered_objects:
+            xlim:
+            temp_ylim:
+            prec_ylim: 
+        """
+
+        nclasses = len(set(clustered_objects['Class']))
+
+        locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
+        formatter = mdates.ConciseDateFormatter(locator)
+
+        fig, ax = plt.subplots(nrows=nclasses, ncols=2, dpi=300, figsize=(10, 3 * nclasses))
+        plt.subplots_adjust(bottom=0.03, top=0.95)
+        return fig, ax
+    
+
+    def boxplot_climate(
+            self,
+            clustered_objects: pd.DataFrame,
+            ylim: list = None,
+            column: str = 'Temperature',
+            classes: list = None,
+            start_month = growth_season_start_month,
+            end_month = growth_season_end_month
+        ) -> tuple:
+
+        r"""
+        Params:
+            clustered_objects:
+            ylim:
+            column:
+            classes:
+            start_month:
+            end_month:
+        """
+
+        classes = classes if classes else set(clustered_objects['Class'])
+
+        totals = self.__get_total_climate__(
+            clustered_objects,
+            column,
+            classes,
+            start_month,
+            end_month
+        )
+
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+        ax.boxplot(totals)
+        title = f"{'Mean' if column == 'Temperature' else 'Total'} {column}"
+        ax.set_title(title)
+        ax.set_xticklabels([cl + 1 for cl in classes])
+
+        if ylim:
+            ax.set_ylim(ylim)
+
+        return fig, ax
+    
+
+    def get_climate_kruskalwallis(
+            self,
+            clustered_objects: pd.DataFrame,
+            column: str = 'Temperature',
+            classes: list = None,
+            start_month = growth_season_start_month,
+            end_month = growth_season_end_month) -> tuple[float, float]:
+        
+        r"""
+        Params:
+            clustered_objects:
+            ylim:
+            column:
+            classes:
+            start_month:
+            end_month:
+        """
+
+        totals = self.__get_total_climate__(
+            clustered_objects,
+            column,
+            classes,
+            start_month,
+            end_month
+        )
+
+        s, p = mstats.kruskalwallis(*totals)
+
+        return s, p
+    
+
+    def __get_total_climate__(
+            self,
+            clustered_objects: pd.DataFrame,
+            column,
+            classes,
+            start_month,
+            end_month) -> list[list[float]]:
+        totals = []
+
+        classes = classes if classes else set(clustered_objects['Class'])
+        groups = self.__get_classes_rows__(clustered_objects)
+
+        for c in classes:
+            values = []
+            years = clustered_objects.loc[groups[c]]['Year']
+            for year in years:
+                df = self.climate[(self.climate['Year'] == year) &
+                 (start_month <= self.climate['Month']) &
+                 (self.climate['Month'] <= end_month)].dropna()[column]
+
+                if len(df) > 0:
+                    res = df.mean() if column == 'Temperature' else df.sum()
+                    values.append(res)
+            totals.append(values)
+        
+        return totals
 
 
     def boxplot_climate_index(
@@ -371,7 +497,7 @@ class ClimateMatcher:
         columns = [col for col in df_copy.columns if col not in ['Year', 'Class']]
         for column in columns:
             df_copy[column] = df_copy[column].shift(1)
-        return df_copy
+        return df_copy.dropna()
 
 
     @staticmethod
