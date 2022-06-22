@@ -3,4 +3,4 @@ app/output
 .Rhistory
 __pycache__
 .idea
-playground.ipynb
+playground*
