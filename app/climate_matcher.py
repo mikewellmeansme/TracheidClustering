@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.stats import mstats
 
 from datetime import date
+from numpy import arange
 from zhutils.daily_dataframe import DailyDataFrame
 from zhutils.superb_dataframe import SuperbDataFrame
 
@@ -225,12 +226,56 @@ class ClimateMatcher:
         return s, p
     
 
-    def get_chronology_comparison(self, chronology: pd.DataFrame, crn_column: str) -> SuperbDataFrame:
-        result = chronology[['Year', crn_column]].set_index('Year').join(
+    def get_chronology_comparison(self, chronology: pd.DataFrame,
+                                  crn_column: str, clustered_objects: pd.DataFrame) -> SuperbDataFrame:
+        df = chronology[['Year', crn_column]].set_index('Year').join(
             [self.climate_indexes[index][['Year', index]].set_index('Year') for index in self.climate_indexes],
             how='left'
-        )
-        return SuperbDataFrame(result.reset_index())
+        ).reset_index()
+        result = clustered_objects[['Year', 'Class']].merge(df, on='Year', how='left')
+        return SuperbDataFrame(result)
+    
+
+    def plot_chronology_comparison(
+        self,
+        crn_comparison_df: pd.DataFrame,
+        crn_column: str,
+        ylims: dict = {
+            'std': [0, 2],
+            'PDSI': [-9, 9],
+            'SPEI': [-1.5, 1.5],
+            'Area': [20, 80],
+            'Class': [0.5,4.5]
+        },
+        yticks: dict = {
+            'std': arange(0.5,2, 0.5),
+            'Area': [25, 50, 75],
+            'Class': range(1,5)
+        }) -> tuple:
+
+        nrows = len(self.climate_indexes) + 2
+        fig, axes = plt.subplots( nrows=nrows, ncols=1, dpi=300, figsize=(10,nrows), sharex=True)
+        plt.subplots_adjust(hspace=0, left=.06, right=.98, top=.99, bottom=.09)
+
+        row_names = [crn_column] + list(self.climate_indexes.keys()) + ['Class']
+        
+
+        for i, row in enumerate(row_names):
+            y = crn_comparison_df[row] + 1 if row == 'Class' else crn_comparison_df[row]
+            axes[i].plot(crn_comparison_df['Year'], y, c='black', label=row)
+            axes[i].set_ylabel(row)
+
+            ylim = ylims.get(row)
+
+            if not isinstance(ylim, type(None)):
+                axes[i].set_ylim(ylim)
+            
+            ytick = yticks.get(row)
+
+            if not isinstance(ytick, type(None)):
+                axes[i].set_yticks(ytick)
+
+        return fig, axes
 
     
     def __get_climate_index_names__(self):

@@ -205,9 +205,23 @@ class Application:
     
 
     def get_chronology_comparison(self, crn_column) -> SuperbDataFrame:
-        result = self.climate_matcher.get_chronology_comparison(self.chronology, crn_column)
+        result = self.climate_matcher.get_chronology_comparison(
+            self.chronology,
+            crn_column,
+            self.clustered_objects
+        )
         return result
     
+
+    def plot_chronology_comparison(self, crn_column, **kwargs) -> tuple:
+        crn_comparison_df = self.get_chronology_comparison(crn_column)
+        fig, ax = self.climate_matcher.plot_chronology_comparison(
+            crn_comparison_df,
+            crn_column,
+            **kwargs
+        )
+        return fig, ax
+
     
     def __get_nclasses__(self) -> int:
         classes = set(self.clustered_objects['Class'])
