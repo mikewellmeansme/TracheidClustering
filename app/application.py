@@ -246,6 +246,15 @@ class Application:
         )
 
         return s, p
+    
+
+    def get_climate_comparison(self, **kwargs) -> SuperbDataFrame:
+        result = self.climate_matcher(
+            self.clustered_objects,
+            **kwargs
+        )
+
+        return result
 
     
     def __get_nclasses__(self) -> int:

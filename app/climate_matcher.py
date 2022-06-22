@@ -1,3 +1,4 @@
+from re import L
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
@@ -268,7 +269,8 @@ class ClimateMatcher:
             column: str = 'Temperature',
             classes: list = None,
             start_month = growth_season_start_month,
-            end_month = growth_season_end_month) -> tuple[float, float]:
+            end_month = growth_season_end_month
+        ) -> tuple[float, float]:
         
         r"""
         Params:
@@ -394,6 +396,34 @@ class ClimateMatcher:
             )
 
         return s, p
+    
+
+    def get_climate_comparison(
+            self,
+            clustered_objects: pd.DataFrame,
+            start_month = growth_season_start_month,
+            end_month = growth_season_end_month
+        ) -> SuperbDataFrame:
+
+        r"""
+        Params:
+            clustered_objects:
+            start_month:
+            end_month:
+        """
+
+        crn = self.climate[
+            (start_month <= self.climate['Month']) & 
+            (self.climate['Month'] <= end_month)
+        ].groupby('Year').mean().reset_index()
+        
+        result = crn.merge(
+            clustered_objects[['Year', 'Class']],
+            on='Year', 
+            how='left'
+        ).drop(columns=['Month', 'Day'])
+
+        return SuperbDataFrame(result)
     
 
     def get_chronology_comparison(
