@@ -21,8 +21,12 @@ class ClimateMatcher:
     climate_indexes: dict[pd.DataFrame]
 
 
-    def __init__(self, climate_path: str, clustered_objects: pd.DataFrame, 
-                 climate_indexes_paths: dict[str, str]) -> None:
+    def __init__(
+            self,
+            climate_path: str,
+            clustered_objects: pd.DataFrame, 
+            climate_indexes_paths: dict[str, str]
+        ) -> None:
         
         climate = pd.read_csv(climate_path)
         self.climate = DailyDataFrame(climate)
@@ -99,9 +103,14 @@ class ClimateMatcher:
         self.area = area_df
     
 
-    def plot_area_per_class(self, clustered_objects: pd.DataFrame,
-                            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
-                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]):
+    def plot_area_per_class(
+            self,
+            clustered_objects: pd.DataFrame,
+            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
+            temp_ylim: list = [0, 30],
+            prec_ylim: list = [0,350]
+        ) -> tuple:
+        
         classes = set(clustered_objects['Class'])
         nclasses = len(classes)
 
@@ -174,9 +183,15 @@ class ClimateMatcher:
         return fig, ax
 
 
-    def boxplot_climate_index(self, index='PDSI', prev: bool = False,
-                              month: str = None, classes: list = None,
-                              ylims: list = None) -> tuple:
+    def boxplot_climate_index(
+            self,
+            index='PDSI', 
+            prev: bool = False,
+            month: str = None,
+            classes: list = None,
+            ylims: list = None
+        ) -> tuple:
+
         r"""
         index: PDSI, Area, SPEI
         """
@@ -203,8 +218,14 @@ class ClimateMatcher:
         return fig, ax
 
 
-    def get_climate_index_kruskalwallis(self, index='PDSI', prev: bool = False,
-                                        month: str = None, classes: list = None) -> tuple[float, float]:
+    def get_climate_index_kruskalwallis(
+            self,
+            index='PDSI',
+            prev: bool = False,
+            month: str = None,
+            classes: list = None
+        ) -> tuple[float, float]:
+
         r"""
         index: PDSI, Area, SPEI
         """
@@ -226,8 +247,13 @@ class ClimateMatcher:
         return s, p
     
 
-    def get_chronology_comparison(self, chronology: pd.DataFrame,
-                                  crn_column: str, clustered_objects: pd.DataFrame) -> SuperbDataFrame:
+    def get_chronology_comparison(
+            self,
+            chronology: pd.DataFrame,
+            crn_column: str,
+            clustered_objects: pd.DataFrame
+        ) -> SuperbDataFrame:
+
         df = chronology[['Year', crn_column]].set_index('Year').join(
             [self.climate_indexes[index][['Year', index]].set_index('Year') for index in self.climate_indexes],
             how='left'

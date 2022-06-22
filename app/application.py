@@ -29,8 +29,15 @@ class Application:
     chronology: pd.DataFrame
 
 
-    def __init__(self, tracheid_name: str,  tracheid_path: str,
-                 trees: list, climate_path: str, climate_indexes_paths: dict[str, str], crn_path: str) -> None:
+    def __init__(
+            self,
+            tracheid_name: str,
+            tracheid_path: str,
+            trees: list,
+            climate_path: str,
+            climate_indexes_paths: dict[str, str],
+            crn_path: str
+        ) -> None:
 
         normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
         self.normalized_tracheids = normalized_tracheids
@@ -64,9 +71,15 @@ class Application:
         self.climate_matcher.change_class_names(clusterer=self.clusterer)
 
 
-    def plot_сlass_mean_objects(self, class_titles: list = None,
-                                norm_to=15, ylim0=.75, ylim1=1.25,
-                                xticks=default_xticks, xticklabels=default_xticklabels) -> tuple:
+    def plot_сlass_mean_objects(
+            self,
+            class_titles: list = None,
+            norm_to=15,
+            ylim0=.75,
+            ylim1=1.25,
+            xticks=default_xticks,
+            xticklabels=default_xticklabels
+        ) -> tuple:
 
         nclasses = self.__get_nclasses__()
 
@@ -139,14 +152,11 @@ class Application:
         return result
     
 
-    def plot_area_per_class(self, xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
-                            temp_ylim: list = [0, 30], prec_ylim: list = [0,350]) -> tuple:
+    def plot_area_per_class(self, **kwargs) -> tuple:
         
         fig, ax = self.climate_matcher.plot_area_per_class(
             clustered_objects=self.clustered_objects,
-            xlim=xlim,
-            temp_ylim=temp_ylim,
-            prec_ylim=prec_ylim
+            **kwargs
         )
 
         return fig, ax
