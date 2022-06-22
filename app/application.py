@@ -249,7 +249,7 @@ class Application:
     
 
     def get_climate_comparison(self, **kwargs) -> SuperbDataFrame:
-        result = self.climate_matcher(
+        result = self.climate_matcher.get_climate_comparison(
             self.clustered_objects,
             **kwargs
         )
