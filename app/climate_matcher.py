@@ -36,18 +36,22 @@ class ClimateMatcher:
         }
         for index in climate_indexes_paths:
             self.climate_indexes[index] = self.__load_climate_index__(
-                climate_indexes_paths[index]
+                climate_indexes_paths[index],
+                clustered_objects
             ) 
         
 
-    def __load_climate_index__(self, path):
+    def __load_climate_index__(self, path, clustered_objects):
         df = pd.read_csv(path)
-        result = df.merge(self.area[['Year', 'Class']], on='Year', how='left')
+        result = df.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
         return result
     
 
     def change_class_names(self, clusterer: Clusterer) -> None:
-        self.area['Class'] = clusterer.convert_class_number_to_name(self.area['Class'])
+        for index in self.climate_indexes:
+            self.climate_indexes[index]['Class'] = clusterer.convert_class_number_to_name(
+                self.climate_indexes[index]['Class']
+            )
     
 
     def __get_cut_climate__(self) -> None:
@@ -110,7 +114,15 @@ class ClimateMatcher:
             temp_ylim: list = [0, 30],
             prec_ylim: list = [0,350]
         ) -> tuple:
-        
+
+        r"""
+        Params:
+            clustered_objects: 
+            xlim: 
+            temp_ylim:
+            prec_ylim:
+        """
+
         classes = set(clustered_objects['Class'])
         nclasses = len(classes)
 
@@ -193,8 +205,14 @@ class ClimateMatcher:
         ) -> tuple:
 
         r"""
-        index: PDSI, Area, SPEI
+        Params:
+            index: PDSI, Area, SPEI
+            prev: 
+            month: 
+            classes: 
+            ylims: 
         """
+
         self.__validate_inedx__(index)
         classes = classes if classes else self.__get_classes__()
         groups = self.__get_classes_rows__(self.climate_indexes[index])
@@ -227,8 +245,13 @@ class ClimateMatcher:
         ) -> tuple[float, float]:
 
         r"""
-        index: PDSI, Area, SPEI
+        Params:
+            index: PDSI, Area, SPEI
+            prev: 
+            month:
+            classes:
         """
+
         self.__validate_inedx__(index)
         classes = classes if classes else self.__get_classes__()
         groups = self.__get_classes_rows__(self.climate_indexes[index])
@@ -254,6 +277,13 @@ class ClimateMatcher:
             clustered_objects: pd.DataFrame
         ) -> SuperbDataFrame:
 
+        r"""
+        Params:
+            chronology: 
+            crn_column: 
+            clustered_objects:
+        """
+
         df = chronology[['Year', crn_column]].set_index('Year').join(
             [self.climate_indexes[index][['Year', index]].set_index('Year') for index in self.climate_indexes],
             how='left'
@@ -263,21 +293,30 @@ class ClimateMatcher:
     
 
     def plot_chronology_comparison(
-        self,
-        crn_comparison_df: pd.DataFrame,
-        crn_column: str,
-        ylims: dict = {
-            'std': [0, 2],
-            'PDSI': [-9, 9],
-            'SPEI': [-1.5, 1.5],
-            'Area': [20, 80],
-            'Class': [0.5,4.5]
-        },
-        yticks: dict = {
-            'std': arange(0.5,2, 0.5),
-            'Area': [25, 50, 75],
-            'Class': range(1,5)
-        }) -> tuple:
+            self,
+            crn_comparison_df: pd.DataFrame,
+            crn_column: str,
+            ylims: dict = {
+                'std': [0, 2],
+                'PDSI': [-9, 9],
+                'SPEI': [-1.5, 1.5],
+                'Area': [20, 80],
+                'Class': [0.5,4.5]
+            },
+            yticks: dict = {
+                'std': arange(0.5,2, 0.5),
+                'Area': [25, 50, 75],
+                'Class': range(1,5)
+            }
+        ) -> tuple:
+
+        r"""
+        Params:
+            crn_comparison_df: 
+            crn_column: 
+            ylims:
+            yticks:
+        """
 
         nrows = len(self.climate_indexes) + 2
         fig, axes = plt.subplots( nrows=nrows, ncols=1, dpi=300, figsize=(10,nrows), sharex=True)
