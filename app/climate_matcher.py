@@ -195,32 +195,6 @@ class ClimateMatcher:
         return fig, ax
     
 
-    def plot_mean_climate_pre_class(
-            self,
-            clustered_objects: pd.DataFrame,
-            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
-            temp_ylim: list = [0, 30],
-            prec_ylim: list = [0,350]
-        ) -> tuple:
-
-        r"""
-        Params:
-            clustered_objects:
-            xlim:
-            temp_ylim:
-            prec_ylim: 
-        """
-
-        nclasses = len(set(clustered_objects['Class']))
-
-        locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
-        formatter = mdates.ConciseDateFormatter(locator)
-
-        fig, ax = plt.subplots(nrows=nclasses, ncols=2, dpi=300, figsize=(10, 3 * nclasses))
-        plt.subplots_adjust(bottom=0.03, top=0.95)
-        return fig, ax
-    
-
     def boxplot_climate(
             self,
             clustered_objects: pd.DataFrame,
