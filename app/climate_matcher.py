@@ -228,7 +228,10 @@ class ClimateMatcher:
             column: str = 'Temperature',
             classes: list = None,
             start_month = growth_season_start_month,
-            end_month = growth_season_end_month
+            end_month = growth_season_end_month,
+            start_day = 1,
+            end_day = 31,
+            moving_avg_window: int = None
         ) -> tuple:
 
         r"""
@@ -248,7 +251,10 @@ class ClimateMatcher:
             column,
             classes,
             start_month,
-            end_month
+            end_month,
+            start_day,
+            end_day,
+            moving_avg_window
         )
 
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
@@ -269,7 +275,10 @@ class ClimateMatcher:
             column: str = 'Temperature',
             classes: list = None,
             start_month = growth_season_start_month,
-            end_month = growth_season_end_month
+            end_month = growth_season_end_month,
+            start_day = 1,
+            end_day = 31,
+            moving_avg_window: int = None
         ) -> tuple[float, float]:
         
         r"""
@@ -287,7 +296,10 @@ class ClimateMatcher:
             column,
             classes,
             start_month,
-            end_month
+            end_month,
+            start_day,
+            end_day,
+            moving_avg_window
         )
 
         s, p = mstats.kruskalwallis(*totals)
@@ -298,14 +310,24 @@ class ClimateMatcher:
     def __get_total_climate__(
             self,
             clustered_objects: pd.DataFrame,
-            column,
-            classes,
-            start_month,
-            end_month) -> list[list[float]]:
+            column: str,
+            classes: list,
+            start_month: int,
+            end_month: int,
+            start_day: int,
+            end_day: int,
+            moving_avg_window: int = None
+
+        ) -> list[list[float]]:
         totals = []
 
         classes = classes if classes else set(clustered_objects['Class'])
         groups = self.__get_classes_rows__(clustered_objects)
+
+        climate_df = DailyDataFrame(self.climate.copy())
+        if moving_avg_window:
+            moving_avg = climate_df.moving_avg([column], window=moving_avg_window)
+            climate_df[column] = moving_avg[column]
 
         for c in classes:
             values = []
