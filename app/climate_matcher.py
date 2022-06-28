@@ -333,9 +333,19 @@ class ClimateMatcher:
             values = []
             years = clustered_objects.loc[groups[c]]['Year']
             for year in years:
-                df = self.climate[(self.climate['Year'] == year) &
-                 (start_month <= self.climate['Month']) &
-                 (self.climate['Month'] <= end_month)].dropna()[column]
+                df = climate_df[
+                    (climate_df['Year'] == year) &
+                    (
+                        (
+                            ((start_month == climate_df['Month']) & (start_day <= climate_df['Day'])) |
+                            (start_month < climate_df['Month'])
+                        ) & 
+                        (
+                            (climate_df['Month'] < end_month) |
+                            ((climate_df['Month'] ==  end_month) & (climate_df['Day'] <= end_day))
+                        )
+                    )
+                ].dropna()[column]
 
                 if len(df) > 0:
                     res = df.mean() if column == 'Temperature' else df.sum()
