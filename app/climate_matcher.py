@@ -110,7 +110,6 @@ class ClimateMatcher:
 
     def plot_area_per_class(
             self,
-            clustered_objects: pd.DataFrame,
             xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
             temp_ylim: list = [0, 30],
             prec_ylim: list = [0,350]
