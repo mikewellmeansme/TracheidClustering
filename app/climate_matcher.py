@@ -205,9 +205,10 @@ class ClimateMatcher:
             end_month = growth_season_end_month,
             start_day = 1,
             end_day = 31,
-            moving_avg_window: int = None,
-            prev: bool = False
-        ) -> tuple:
+            moving_avg_window: Optional[int] = None,
+            prev: bool = False,
+            ax: Optional[Axes] = None
+        ) -> Tuple[Optional[Figure], Axes]:
 
         r"""
         Plots a boxplot of mean temperature \ total precipitation
@@ -241,13 +242,17 @@ class ClimateMatcher:
             moving_avg_window,
             prev
         )
-
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+        if ax:
+            fig = None
+        else:
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
         ax.boxplot(totals)
-        ylabel = 'Mean Temperature (°C)' if column == 'Temperature' else 'Total Precipitation (mm)'
-        ax.set_xticklabels([cl + 1 for cl in classes])
-        ax.set_ylabel(ylabel)
-        ax.set_xlabel('Class')
+            ylabel = 'Mean Temperature (°C)' if column == 'Temperature' else 'Total Precipitation (mm)'
+            ax.set_xticklabels([cl + 1 for cl in classes])
+            ax.set_ylabel(ylabel)
+            ax.set_xlabel('Class')
+        
+        ax.boxplot(totals)
 
         if ylim:
             ax.set_ylim(ylim)
