@@ -116,11 +116,12 @@ class ClimateMatcher:
         ) -> tuple:
 
         r"""
+        Plots climate for median by Area yars and corresponding Area objects 
+
         Params:
-            clustered_objects: 
-            xlim: 
-            temp_ylim:
-            prec_ylim:
+            xlim: Limits for X axis (Dates)
+            temp_ylim: Limits for temperature Y axis (°C)
+            prec_ylim: Limits for precipitation Y axis (mm)
         """
 
         nclasses = self.__get_nclasses__()
@@ -208,13 +209,21 @@ class ClimateMatcher:
         ) -> tuple:
 
         r"""
+        Plots a boxplot of mean temperature \ total precipitation
+        for the given period (from start_month.start_day till end_month.end_day)
+        for every year
+        per classes (given in clustered_objects)
+
         Params:
-            clustered_objects:
-            ylim:
-            column:
-            classes:
-            start_month:
-            end_month:
+            clustered_objects: DataFrame with columns 'Year' and 'Class'
+            ylim: Limits for the Y axis of boxplot
+            column: Temperature or Precipitation
+            classes: List of classes to plot (default: all)
+            start_month: Start month of period
+            end_month: End month of period
+            start_day: Start day of period
+            end_day: End day of period
+            moving_avg_window: Window of the moving average to smooth the climate
         """
 
         classes = classes if classes else set(clustered_objects['Class'])
@@ -232,9 +241,10 @@ class ClimateMatcher:
 
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
         ax.boxplot(totals)
-        title = f"{'Mean' if column == 'Temperature' else 'Total'} {column}"
-        ax.set_title(title)
+        ylabel = 'Mean Temperature (°C)' if column == 'Temperature' else 'Total Precipitation (mm)'
         ax.set_xticklabels([cl + 1 for cl in classes])
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel('Class')
 
         if ylim:
             ax.set_ylim(ylim)
@@ -255,13 +265,20 @@ class ClimateMatcher:
         ) -> tuple[float, float]:
         
         r"""
+        Calculates the Kruskall-Wallis stat for partition of mean temperature \ total precipitation
+        for the given period (from start_month.start_day till end_month.end_day)
+        for every year 
+        per classes (given in clustered_objects)
+
         Params:
-            clustered_objects:
-            ylim:
-            column:
-            classes:
-            start_month:
-            end_month:
+            clustered_objects: DataFrame with columns 'Year' and 'Class'
+            column: Temperature or Precipitation
+            classes: List of classes to plot (default: all)
+            start_month: Start month of period
+            end_month: End month of period
+            start_day: Start day of period
+            end_day: End day of period
+            moving_avg_window: Window of the moving average to smooth the climate
         """
 
         totals = self.__get_total_climate__(
@@ -292,6 +309,24 @@ class ClimateMatcher:
             moving_avg_window: int = None
 
         ) -> list[list[float]]:
+        
+        r"""
+        Returns the partition of mean temperature \ total precipitation
+        for the given period (from start_month.start_day till end_month.end_day)
+        for every year 
+        per classes (given in clustered_objects)
+
+        Params:
+            clustered_objects: DataFrame with columns 'Year' and 'Class'
+            column: Temperature or Precipitation
+            classes: List of classes to plot (default: all)
+            start_month: Start month of period
+            end_month: End month of period
+            start_day: Start day of period
+            end_day: End day of period
+            moving_avg_window: Window of the moving average to smooth the climate
+        """
+
         totals = []
 
         classes = classes if classes else set(clustered_objects['Class'])
@@ -362,6 +397,7 @@ class ClimateMatcher:
         title = f"{index} {month if month else ''}{' prev' if prev else ''}"
         ax.set_title(title)
         ax.set_xticklabels([cl + 1 for cl in classes])
+        ax.set_xlabel('Class')
 
         if ylims:
             ax.set_ylim(ylims)
