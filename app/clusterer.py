@@ -1,11 +1,12 @@
 from sklearn.cluster import KMeans
 from pandas import DataFrame
+from typing import Optional, Dict
 
 
 class Clusterer:
     clusters: int
-    __model__ = None
-    __number_to_name__ = None
+    __model__: KMeans = None
+    __number_to_name__: Optional[Dict] = None
 
 
     def __init__(self) -> None:
@@ -34,7 +35,7 @@ class Clusterer:
     def convert_class_number_to_name(self, class_numbers: list):
         if not self.__number_to_name__:
             return class_numbers
-        class_names = [self.__number_to_name__[num] for num in class_numbers]
+        class_names = [self.__number_to_name__.get(num) for num in class_numbers]
         return class_names
 
 
