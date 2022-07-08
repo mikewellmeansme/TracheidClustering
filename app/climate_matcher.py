@@ -1,11 +1,19 @@
-from re import L
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
-from scipy.stats import mstats
 
 from datetime import date
+from matplotlib.figure import Figure
+from matplotlib.axes._axes import Axes
 from numpy import arange
+from scipy.stats import mstats
+from typing import (
+    Optional,
+    Dict, 
+    Tuple,
+    List,
+    Set
+) 
 from zhutils.daily_dataframe import DailyDataFrame
 from zhutils.superb_dataframe import SuperbDataFrame
 
@@ -26,7 +34,7 @@ class ClimateMatcher:
             self,
             climate_path: str,
             clustered_objects: pd.DataFrame, 
-            climate_indexes_paths: dict[str, str]
+            climate_indexes_paths: Dict[str, str]
         ) -> None:
         
         climate = pd.read_csv(climate_path)
@@ -42,7 +50,7 @@ class ClimateMatcher:
             ) 
         
 
-    def __load_climate_index__(self, path, clustered_objects):
+    def __load_climate_index__(self, path: str, clustered_objects: pd.DataFrame):
         df = pd.read_csv(path)
         result = df.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
         return result
@@ -110,9 +118,9 @@ class ClimateMatcher:
 
     def plot_area_per_class(
             self,
-            xlim: list = [date(2000, 4, 20), date(2000, 10, 10)],
-            temp_ylim: list = [0, 30],
-            prec_ylim: list = [0,350]
+            xlim: List = [date(2000, 4, 20), date(2000, 10, 10)],
+            temp_ylim: List = [0, 30],
+            prec_ylim: List = [0,350]
         ) -> tuple:
 
         r"""
@@ -198,9 +206,9 @@ class ClimateMatcher:
     def boxplot_climate(
             self,
             clustered_objects: pd.DataFrame,
-            ylim: list = None,
+            ylim: Optional[List] = None,
             column: str = 'Temperature',
-            classes: list = None,
+            classes: Optional[List] = None,
             start_month = growth_season_start_month,
             end_month = growth_season_end_month,
             start_day = 1,
@@ -227,6 +235,7 @@ class ClimateMatcher:
             end_day: End day of period
             moving_avg_window: Window of the moving average to smooth the climate
             prev: True if we are dealing with the previous years (defaulf: False)
+            ax: Axis to plot on (default: None, method creates a new axis)
         """
 
         classes = classes if classes else set(clustered_objects['Class'])
@@ -246,7 +255,6 @@ class ClimateMatcher:
             fig = None
         else:
             fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
-        ax.boxplot(totals)
             ylabel = 'Mean Temperature (°C)' if column == 'Temperature' else 'Total Precipitation (mm)'
             ax.set_xticklabels([cl + 1 for cl in classes])
             ax.set_ylabel(ylabel)
@@ -264,14 +272,14 @@ class ClimateMatcher:
             self,
             clustered_objects: pd.DataFrame,
             column: str = 'Temperature',
-            classes: list = None,
+            classes: Optional[List] = None,
             start_month = growth_season_start_month,
             end_month = growth_season_end_month,
             start_day = 1,
             end_day = 31,
-            moving_avg_window: int = None,
+            moving_avg_window: Optional[int] = None,
             prev: bool = False
-        ) -> tuple[float, float]:
+        ) -> Tuple[float, float]:
         
         r"""
         Calculates the Kruskall-Wallis stat for partition of mean temperature \ total precipitation
@@ -312,15 +320,15 @@ class ClimateMatcher:
             self,
             clustered_objects: pd.DataFrame,
             column: str,
-            classes: list,
+            classes: List,
             start_month: int,
             end_month: int,
             start_day: int,
             end_day: int,
-            moving_avg_window: int = None,
+            moving_avg_window: Optional[int] = None,
             prev: bool = False
 
-        ) -> list[list[float]]:
+        ) -> List[List[float]]:
 
         r"""
         Returns the partition of mean temperature \ total precipitation
@@ -380,9 +388,9 @@ class ClimateMatcher:
             self,
             index='PDSI', 
             prev: bool = False,
-            month: str = None,
-            classes: list = None,
-            ylims: list = None
+            month: Optional[str] = None,
+            classes: Optional[List] = None,
+            ylims: Optional[List] = None
         ) -> tuple:
 
         r"""
@@ -422,9 +430,9 @@ class ClimateMatcher:
             self,
             index='PDSI',
             prev: bool = False,
-            month: str = None,
-            classes: list = None
-        ) -> tuple[float, float]:
+            month: Optional[str] = None,
+            classes: Optional[List] = None
+        ) -> Tuple[float, float]:
 
         r"""
         Params:
@@ -506,14 +514,14 @@ class ClimateMatcher:
             self,
             crn_comparison_df: pd.DataFrame,
             crn_column: str,
-            ylims: dict = {
+            ylims: Dict = {
                 'std': [0, 2],
                 'PDSI': [-9, 9],
                 'SPEI': [-1.5, 1.5],
                 'Area': [20, 80],
                 'Class': [0.5,4.5]
             },
-            yticks: dict = {
+            yticks: Dict = {
                 'std': arange(0.5,2, 0.5),
                 'Area': [25, 50, 75],
                 'Class': range(1,5)
@@ -564,7 +572,7 @@ class ClimateMatcher:
             raise ValueError(f'Wrong feature given! Must be one of: {indexes}. Given: {index}')
     
 
-    def __get_classes__(self) -> set[int]:
+    def __get_classes__(self) -> Set[int]:
         classes = set(self.area['Class'])
         return classes
 
@@ -585,6 +593,6 @@ class ClimateMatcher:
 
 
     @staticmethod
-    def __get_classes_rows__(df:pd.DataFrame, ) -> dict[int, list]:
+    def __get_classes_rows__(df:pd.DataFrame, ) -> Dict[int, list]:
         groups = df.groupby('Class').groups
         return groups
