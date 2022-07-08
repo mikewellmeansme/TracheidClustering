@@ -205,7 +205,8 @@ class ClimateMatcher:
             end_month = growth_season_end_month,
             start_day = 1,
             end_day = 31,
-            moving_avg_window: int = None
+            moving_avg_window: int = None,
+            prev: bool = False
         ) -> tuple:
 
         r"""
@@ -224,6 +225,7 @@ class ClimateMatcher:
             start_day: Start day of period
             end_day: End day of period
             moving_avg_window: Window of the moving average to smooth the climate
+            prev: True if we are dealing with the previous years (defaulf: False)
         """
 
         classes = classes if classes else set(clustered_objects['Class'])
@@ -236,7 +238,8 @@ class ClimateMatcher:
             end_month,
             start_day,
             end_day,
-            moving_avg_window
+            moving_avg_window,
+            prev
         )
 
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
@@ -261,7 +264,8 @@ class ClimateMatcher:
             end_month = growth_season_end_month,
             start_day = 1,
             end_day = 31,
-            moving_avg_window: int = None
+            moving_avg_window: int = None,
+            prev: bool = False
         ) -> tuple[float, float]:
         
         r"""
@@ -279,6 +283,7 @@ class ClimateMatcher:
             start_day: Start day of period
             end_day: End day of period
             moving_avg_window: Window of the moving average to smooth the climate
+            prev: True if we are dealing with the previous years (defaulf: False)
         """
 
         totals = self.__get_total_climate__(
@@ -289,7 +294,8 @@ class ClimateMatcher:
             end_month,
             start_day,
             end_day,
-            moving_avg_window
+            moving_avg_window,
+            prev
         )
 
         s, p = mstats.kruskalwallis(*totals)
@@ -306,10 +312,11 @@ class ClimateMatcher:
             end_month: int,
             start_day: int,
             end_day: int,
-            moving_avg_window: int = None
+            moving_avg_window: int = None,
+            prev: bool = False
 
         ) -> list[list[float]]:
-        
+
         r"""
         Returns the partition of mean temperature \ total precipitation
         for the given period (from start_month.start_day till end_month.end_day)
@@ -325,6 +332,7 @@ class ClimateMatcher:
             start_day: Start day of period
             end_day: End day of period
             moving_avg_window: Window of the moving average to smooth the climate
+            prev: True if we are dealing with the previous years (defaulf: False)
         """
 
         totals = []
@@ -342,7 +350,7 @@ class ClimateMatcher:
             years = clustered_objects.loc[groups[c]]['Year']
             for year in years:
                 df = climate_df[
-                    (climate_df['Year'] == year) &
+                    (climate_df['Year'] == year - int(prev)) &
                     (
                         (
                             ((start_month == climate_df['Month']) & (start_day <= climate_df['Day'])) |
