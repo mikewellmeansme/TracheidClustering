@@ -152,20 +152,18 @@ class Application:
 
             ax.axhline(y=1, c='grey', linewidth=1)
             ax.axvline(x=norm_to+1, c='dimgrey', linewidth=2 )
-            
-            d_mean = mean_objects[i].d_mean
-            d_conf_interfal = mean_objects[i].d_conf_interfal
-            
-            ax.plot(d_xrange, d_mean + d_conf_interfal, c='k', linestyle='--', linewidth=1)
-            ax.plot(d_xrange, d_mean - d_conf_interfal, c='k', linestyle='--', linewidth=1)
-            ax.plot(d_xrange, d_mean, c='k')
 
-            cwt_mean = mean_objects[i].cwt_mean
-            cwt_conf_interfal = mean_objects[i].cwt_conf_interfal
+            to_plot = []
             
-            ax.plot(cwt_xrange, cwt_mean + cwt_conf_interfal, c='k', linestyle='--', linewidth=1)
-            ax.plot(cwt_xrange, cwt_mean - cwt_conf_interfal, c='k', linestyle='--', linewidth=1)
-            ax.plot(cwt_xrange, cwt_mean, c='k')
+            if other_mean_objects:
+                to_plot.append([ax, d_xrange, other_mean_objects[i].d_mean, other_mean_objects[i].d_conf_interfal, other_color])
+                to_plot.append([ax, cwt_xrange, other_mean_objects[i].cwt_mean, other_mean_objects[i].cwt_conf_interfal, other_color])
+
+            to_plot.append([ax, d_xrange, mean_objects[i].d_mean, mean_objects[i].d_conf_interfal])
+            to_plot.append([ax, cwt_xrange, mean_objects[i].cwt_mean, mean_objects[i].cwt_conf_interfal])
+
+            for args in to_plot:
+                self.__plot_mean_obj_with_conf_interfal__(*args)
 
             ax.set_ylim([ylim0, ylim1])
             ax.set_xticks(xticks)
