@@ -3,13 +3,22 @@ import pandas as pd
 
 from dataclasses import dataclass
 from itertools import product
+from matplotlib.figure import Figure
+from matplotlib.axes._axes import Axes
 from numpy import (
     array,
     ceil
 )
 from scipy.stats import mstats
-from zhutils.superb_dataframe import SuperbDataFrame
+from typing import (
+    Optional,
+    Dict, 
+    Tuple,
+    List,
+    Set
+)
 
+from zhutils.superb_dataframe import SuperbDataFrame
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
@@ -82,8 +91,8 @@ class Application:
     def get_class_mean_objects(
             self,
             norm_to=15
-        ) -> dict[ClusterMeanObdect]:
-        
+        ) -> Dict[int, ClusterMeanObdect]:
+
         nclasses = self.__get_nclasses__()
         result = dict()
 
@@ -106,13 +115,15 @@ class Application:
 
     def plot_сlass_mean_objects(
             self,
-            class_titles: list = None,
-            norm_to=15,
-            ylim0=.75,
-            ylim1=1.25,
-            xticks=default_xticks,
-            xticklabels=default_xticklabels
-        ) -> tuple:
+            class_titles: Optional[List] = None,
+            norm_to: int = 15,
+            ylim0: float = 0.75,
+            ylim1: float = 1.25,
+            xticks: List[int] = default_xticks,
+            xticklabels: List[int] =default_xticklabels,
+            other_mean_objects: Optional[Dict[int, ClusterMeanObdect]] = None,
+            other_color: str = 'dimgray'
+        ) -> Tuple[Figure, Axes]:
 
         nclasses = self.__get_nclasses__()
 
