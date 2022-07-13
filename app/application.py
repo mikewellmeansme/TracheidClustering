@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from datetime import date
+from dataclasses import dataclass
 from itertools import product
 from numpy import (
     array,
@@ -19,6 +19,14 @@ pd.options.mode.chained_assignment = None
 
 default_xticks = [1, 5, 10, 15, 17, 21, 26, 31]
 default_xticklabels = [1, 5, 10, 15, 1, 5, 10, 15]
+
+
+@dataclass
+class ClusterMeanObdect:
+    d_mean: array
+    d_conf_interfal: array
+    cwt_mean: array
+    cwt_conf_interfal: array
 
 
 class Application:
@@ -69,6 +77,31 @@ class Application:
         self.clusterer.change_class_names(number_to_name)
         self.clustered_objects['Class'] = self.clusterer.convert_class_number_to_name(self.clustered_objects['Class'])
         self.climate_matcher.change_class_names(clusterer=self.clusterer)
+    
+
+    def get_class_mean_objects(
+            self,
+            norm_to=15
+        ) -> dict[ClusterMeanObdect]:
+        
+        nclasses = self.__get_nclasses__()
+        result = dict()
+
+        for i in range(nclasses):
+            selected = self.clustered_objects[self.clustered_objects['Class']==i]
+            class_size = len(selected)
+            selected_d = selected[[f'D{_+1}' for _ in range(norm_to)]]
+            selected_cwt = selected[[f'CWT{_+1}' for _ in range(norm_to)]]
+            
+            d_mean = array(selected_d.mean())
+            d_conf_interfal = 1.96 * array(selected_d.std()) / (class_size ** 0.5)
+
+            cwt_mean = array(selected_cwt.mean())
+            cwt_conf_interfal = 1.96 * array(selected_cwt.std()) / (class_size ** 0.5)
+
+            result[i] = ClusterMeanObdect(d_mean, d_conf_interfal, cwt_mean, cwt_conf_interfal)
+        
+        return result
 
 
     def plot_сlass_mean_objects(
@@ -92,16 +125,16 @@ class Application:
         nrows = int(ceil(nclasses/2))
         ncols = 2
 
+        mean_objects = self.get_class_mean_objects(norm_to)
+
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5*ncols,3*nrows), dpi=200)
         plt.subplots_adjust(hspace=0.3)
 
         axis_positions = product(range(nrows), range(ncols))
+        d_xrange = range(1, norm_to+1)
+        cwt_xrange = range(norm_to+2, norm_to*2+2)
 
         for i, pos in enumerate(axis_positions):
-            selected = self.clustered_objects[self.clustered_objects['Class']==i]
-            class_size = len(selected)
-            selected_d = selected[[f'D{_+1}' for _ in range(norm_to)]]
-            selected_cwt = selected[[f'CWT{_+1}' for _ in range(norm_to)]]
             class_title = f' {class_titles[i]}' if class_titles else ''
 
             ax = axes[pos]
@@ -109,17 +142,15 @@ class Application:
             ax.axhline(y=1, c='grey', linewidth=1)
             ax.axvline(x=norm_to+1, c='dimgrey', linewidth=2 )
             
-            d_xrange = range(1, norm_to+1)
-            d_mean = array(selected_d.mean())
-            d_conf_interfal = 1.96 * array(selected_d.std()) / (class_size ** 0.5)
+            d_mean = mean_objects[i].d_mean
+            d_conf_interfal = mean_objects[i].d_conf_interfal
             
             ax.plot(d_xrange, d_mean + d_conf_interfal, c='k', linestyle='--', linewidth=1)
             ax.plot(d_xrange, d_mean - d_conf_interfal, c='k', linestyle='--', linewidth=1)
             ax.plot(d_xrange, d_mean, c='k')
 
-            cwt_xrange = range(norm_to+2, norm_to*2+2)
-            cwt_mean = array(selected_cwt.mean())
-            cwt_conf_interfal = 1.96 * array(selected_cwt.std()) / (class_size ** 0.5)
+            cwt_mean = mean_objects[i].cwt_mean
+            cwt_conf_interfal = mean_objects[i].cwt_conf_interfal
             
             ax.plot(cwt_xrange, cwt_mean + cwt_conf_interfal, c='k', linestyle='--', linewidth=1)
             ax.plot(cwt_xrange, cwt_mean - cwt_conf_interfal, c='k', linestyle='--', linewidth=1)
