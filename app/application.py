@@ -19,6 +19,7 @@ from typing import (
 )
 
 from zhutils.superb_dataframe import SuperbDataFrame
+from area_index import AreaIndex
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
@@ -61,8 +62,9 @@ class Application:
         self.train_clusterer()
 
         self.chronology = pd.read_csv(crn_path)
+        self.area_index = AreaIndex(climate_path)
 
-        self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
+        #self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
     
 
     def train_clusterer(self, method: str ='A', nclusters: int = 4) -> None:
@@ -154,7 +156,7 @@ class Application:
             ax.axvline(x=norm_to+1, c='dimgrey', linewidth=2 )
 
             to_plot = []
-            
+
             if other_mean_objects:
                 to_plot.append([ax, d_xrange, other_mean_objects[i].d_mean, other_mean_objects[i].d_conf_interfal, other_color])
                 to_plot.append([ax, cwt_xrange, other_mean_objects[i].cwt_mean, other_mean_objects[i].cwt_conf_interfal, other_color])
@@ -207,7 +209,7 @@ class Application:
 
     def plot_area_per_class(self, **kwargs) -> tuple:
         
-        fig, ax = self.climate_matcher.plot_area_per_class(
+        fig, ax = self.area_index.plot_area_per_class(
             clustered_objects=self.clustered_objects,
             **kwargs
         )

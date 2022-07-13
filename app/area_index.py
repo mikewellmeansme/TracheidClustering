@@ -6,6 +6,7 @@ from datetime import date
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from typing import (
+    Dict,
     Tuple,
     List
 ) 
@@ -14,7 +15,24 @@ from zhutils.superb_dataframe import SuperbDataFrame
 
 
 class AreaIndex:
+    climate: DailyDataFrame
+    start_month: int = 5
+    end_month: int = 9
+    start_day: int = 1
+    end_day: int = 31
+
+
+    def __init__(
+            self,
+            climate_path: str
+        ) -> None:
+        
+        climate = pd.read_csv(climate_path)
+        self.climate = DailyDataFrame(climate)
+    
+
     def __get_cut_climate__(self) -> None:
+
         r"""
         Function for creating a climate dataframe which was cut from the start to the end of growth season
         and contains:
@@ -24,6 +42,7 @@ class AreaIndex:
             scaled cumulative presipitation
             absolute value of difference between scaled temperature and presipitation
         """
+
         climate_df = DailyDataFrame(self.climate.copy())
         # Turning daily precipitation to cumulative presipitetion
         climate_df['Prec_cumsum'] = climate_df.fillna(0).groupby('Year')['Precipitation'].cumsum()
@@ -34,9 +53,17 @@ class AreaIndex:
         climate_df['Prec_cumsum_rolling'] = moving_avg['Prec_cumsum']
 
         # Cutting climate from the start to the end of growth season
-        start = self.growth_season_start_month
-        end = self.growth_season_end_month
-        cut_сlimate_df = climate_df[(start <= climate_df['Month']) & (climate_df['Month'] <= end)]
+
+        cut_сlimate_df = climate_df[
+            (
+                ((self.start_month == climate_df['Month']) & (self.start_day <= climate_df['Day'])) |
+                (self.start_month < climate_df['Month'])
+            ) & 
+            (
+                (climate_df['Month'] < self.end_month) |
+                ((climate_df['Month'] ==  self.end_month) & (climate_df['Day'] <= self.end_day))
+            )
+        ]
         cut_сlimate_df = cut_сlimate_df.reset_index(drop=True)
 
         temp_max = cut_сlimate_df['Temp_rolling'].max()
@@ -55,9 +82,11 @@ class AreaIndex:
 
 
     def __get_area_index__(self, clustered_objects: pd.DataFrame) -> None:
+
         r"""
         Function for calculating Area Index for the given climate data
         """
+
         self.__get_cut_climate__()
         cut_сlimate_df = self.cut_сlimate
         area_df = cut_сlimate_df[['Year', 'Temp_prec_difference']].groupby('Year').sum().reset_index()
