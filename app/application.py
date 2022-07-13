@@ -51,9 +51,9 @@ class Application:
             self,
             tracheid_name: str,
             tracheid_path: str,
-            trees: list,
+            trees: List,
             climate_path: str,
-            climate_indexes_paths: dict[str, str],
+            climate_indexes_paths: Dict[str, str],
             crn_path: str
         ) -> None:
 
@@ -84,7 +84,7 @@ class Application:
         self.clustered_objects = df
 
     
-    def change_class_names(self, number_to_name: dict[int, int]) -> None:
+    def change_class_names(self, number_to_name: Dict[int, int]) -> None:
         self.clusterer.change_class_names(number_to_name)
         self.clustered_objects['Class'] = self.clusterer.convert_class_number_to_name(self.clustered_objects['Class'])
         self.climate_matcher.change_class_names(clusterer=self.clusterer)
@@ -196,7 +196,7 @@ class Application:
         ax.plot(xrange, mean_obj, c=color)
 
 
-    def get_class_sizes(self) -> dict[int, int]:
+    def get_class_sizes(self) -> Dict[int, int]:
         classes = set(self.clustered_objects['Class'])
         result = dict()
 
@@ -207,7 +207,7 @@ class Application:
         return result
     
 
-    def plot_area_per_class(self, **kwargs) -> tuple:
+    def plot_area_per_class(self, **kwargs) -> Tuple[Figure, Axes]:
         
         fig, ax = self.area_index.plot_area_per_class(
             clustered_objects=self.clustered_objects,
@@ -217,7 +217,7 @@ class Application:
         return fig, ax
     
 
-    def plot_class_boxplot(self, feature: str = 'D') -> tuple:
+    def plot_class_boxplot(self, feature: str = 'D') -> Tuple[Figure, Axes]:
         r"""
         Params:
             feature: D or CWT
@@ -259,12 +259,12 @@ class Application:
         return result
     
 
-    def boxplot_climate_index(self, *args, **kwargs) -> tuple:
+    def boxplot_climate_index(self, *args, **kwargs) -> Tuple[Figure, Axes]:
         fig, ax = self.climate_matcher.boxplot_climate_index(*args, **kwargs)
         return fig, ax
     
 
-    def get_climate_index_kruskalwallis(self, *args, **kwargs) -> tuple[float, float]:
+    def get_climate_index_kruskalwallis(self, *args, **kwargs) -> Tuple[float, float]:
         s, p = self.climate_matcher.get_climate_index_kruskalwallis(*args, **kwargs)
         return s, p
     
@@ -278,7 +278,7 @@ class Application:
         return result
     
 
-    def plot_chronology_comparison(self, crn_column, **kwargs) -> tuple:
+    def plot_chronology_comparison(self, crn_column, **kwargs) -> Tuple[Figure, Axes]:
         crn_comparison_df = self.get_chronology_comparison(crn_column)
         fig, ax = self.climate_matcher.plot_chronology_comparison(
             crn_comparison_df,
@@ -288,14 +288,14 @@ class Application:
         return fig, ax
     
 
-    def boxplot_climate(self, **kwargs) -> tuple:
+    def boxplot_climate(self, **kwargs) -> Tuple[Figure, Axes]:
         fig, ax = self.climate_matcher.boxplot_climate(
             self.clustered_objects, **kwargs
         )
         return fig, ax
     
 
-    def get_climate_kruskalwallis(self, **kwargs) -> tuple[float, float]:
+    def get_climate_kruskalwallis(self, **kwargs) -> Tuple[float, float]:
         s, p = self.climate_matcher.get_climate_kruskalwallis(
             self.clustered_objects, **kwargs
         )
@@ -318,12 +318,12 @@ class Application:
         return nclasses
     
 
-    def __get_classes_rows__(self) -> dict[int, list]:
+    def __get_classes_rows__(self) -> Dict[int, list]:
         groups = self.clustered_objects.groupby('Class').groups
         return groups
     
     
-    def __get_feature_columns__(self, feature) -> list[str]:
+    def __get_feature_columns__(self, feature) -> List[str]:
 
         if feature not in ['D', 'CWT']:
             raise ValueError(f'Wrong feature given! Must be D or CWT given: {feature}')
