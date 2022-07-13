@@ -15,23 +15,33 @@ from zhutils.superb_dataframe import SuperbDataFrame
 
 
 class AreaIndex:
+    area: pd.DataFrame
     climate: DailyDataFrame
-    start_month: int = 5
-    end_month: int = 9
-    start_day: int = 1
-    end_day: int = 31
+    start_month: int
+    end_month: int
+    start_day: int
+    end_day: int
 
 
     def __init__(
             self,
-            climate_path: str
+            climate_path: str,
+            start_month: int = 5,
+            end_month: int = 9,
+            start_day: int = 1,
+            end_day: int = 31
         ) -> None:
         
         climate = pd.read_csv(climate_path)
         self.climate = DailyDataFrame(climate)
+        self.start_month = start_month
+        self.end_month = end_month
+        self.start_day = start_day
+        self.end_day = end_day
+        self.area = self.__get_area_index__()
     
 
-    def __get_cut_climate__(self) -> None:
+    def __get_cut_climate__(self) -> pd.DataFrame:
 
         r"""
         Function for creating a climate dataframe which was cut from the start to the end of growth season
@@ -78,26 +88,25 @@ class AreaIndex:
         # Calculating the difference between scaled temperature and presipitation
         cut_сlimate_df['Temp_prec_difference'] = abs(cut_сlimate_df['Temp_scaled'] - cut_сlimate_df['Prec_scaled'])
 
-        self.cut_сlimate = cut_сlimate_df
+        return cut_сlimate_df
 
 
-    def __get_area_index__(self, clustered_objects: pd.DataFrame) -> None:
+    def __get_area_index__(self) -> pd.DataFrame:
 
         r"""
         Function for calculating Area Index for the given climate data
         """
 
-        self.__get_cut_climate__()
-        cut_сlimate_df = self.cut_сlimate
+        cut_сlimate_df = self.__get_cut_climate__()
         area_df = cut_сlimate_df[['Year', 'Temp_prec_difference']].groupby('Year').sum().reset_index()
         area_df = area_df.rename(columns={'Temp_prec_difference': 'Area'})
 
-        area_df = area_df.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
-        self.area = area_df
+        return area_df
     
 
     def plot_area_per_class(
             self,
+            clustered_objects: pd.DataFrame,
             xlim: List = [date(2000, 4, 20), date(2000, 10, 10)],
             temp_ylim: List = [0, 30],
             prec_ylim: List = [0,350]
@@ -112,7 +121,10 @@ class AreaIndex:
             prec_ylim: Limits for precipitation Y axis (mm)
         """
 
-        nclasses = self.__get_nclasses__()
+        area = self.area.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
+        cut_сlimate = self.__get_cut_climate__()
+
+        nclasses = len(set(clustered_objects['Class']))
 
         locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
         formatter = mdates.ConciseDateFormatter(locator)
@@ -148,7 +160,7 @@ class AreaIndex:
             ax[i, 1].xaxis.set_major_locator(locator)
             ax[i, 1].xaxis.set_major_formatter(formatter)
 
-            selected = SuperbDataFrame(self.area[self.area['Class'] == i])
+            selected = SuperbDataFrame(area[area['Class'] == i])
 
             if len(selected) == 0:
                 continue
@@ -156,7 +168,7 @@ class AreaIndex:
             median_year_index = selected.median_index()['Area']
             median_year = int(selected.loc[median_year_index]['Year'])
 
-            median_year_climate = self.cut_сlimate[self.cut_сlimate['Year'] == median_year]
+            median_year_climate = cut_сlimate[cut_сlimate['Year'] == median_year]
 
             date_df = median_year_climate[['Month', 'Day']]
             date_df['Year'] = [2000 for _ in range(len(date_df))]
