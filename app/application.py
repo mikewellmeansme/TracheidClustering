@@ -179,6 +179,19 @@ class Application:
         axes[nrows-1, 1].set_xlabel("Standardized cell position")
 
         return fig, axes
+    
+
+    @staticmethod
+    def __plot_mean_obj_with_conf_interfal__(
+            ax: Axes,
+            xrange: List,
+            mean_obj: array,
+            conf_interfal: array,
+            color: str='k'
+        ) -> None:
+        ax.plot(xrange, mean_obj + conf_interfal, c=color, linestyle='--', linewidth=1)
+        ax.plot(xrange, mean_obj - conf_interfal, c=color, linestyle='--', linewidth=1)
+        ax.plot(xrange, mean_obj, c=color)
 
 
     def get_class_sizes(self) -> dict[int, int]:
