@@ -18,8 +18,8 @@ from zhutils.superb_dataframe import SuperbDataFrame
 class DailyClimateMatcher(Matcher):
     climate: DailyDataFrame
 
-    def __init__(self, climate_path: str) -> None:
-        climate = pd.read_csv(climate_path)
+    def __init__(self, path: str) -> None:
+        climate = pd.read_csv(path)
         self.climate = DailyDataFrame(climate)
 
 
