@@ -19,7 +19,10 @@ from typing import (
 )
 
 from zhutils.superb_dataframe import SuperbDataFrame
-from area_index import AreaIndex
+from climate_indexes.climate_index import ClimateIndex
+from matchers.daily_climate_matcher import DailyClimateMatcher
+from matchers.monthly_climate_index_matcher import MonthlyClimateIndexMatcher
+from climate_indexes.area_index import AreaIndex
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
@@ -52,9 +55,9 @@ class Application:
             tracheid_name: str,
             tracheid_path: str,
             trees: List,
+            crn_path: str,
             climate_path: str,
-            climate_indexes_paths: Dict[str, str],
-            crn_path: str
+            climate_index_paths: Optional[Dict[str, str]] = None,
         ) -> None:
 
         normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
@@ -62,7 +65,16 @@ class Application:
         self.train_clusterer()
 
         self.chronology = pd.read_csv(crn_path)
-        self.area_index = AreaIndex(climate_path)
+        climate_indexes = dict()
+
+        self.daily_climate_matcher = DailyClimateMatcher(climate_path)
+        self.monthly_climate_index_matcher = MonthlyClimateIndexMatcher()
+        climate_indexes['Area'] = AreaIndex(climate_path)
+
+        for index in climate_index_paths:
+            climate_indexes[index] = ClimateIndex(index, climate_index_paths[index])
+        
+        self.climate_indexes = climate_indexes
 
         #self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
     
@@ -209,7 +221,7 @@ class Application:
 
     def plot_area_per_class(self, **kwargs) -> Tuple[Figure, Axes]:
         
-        fig, ax = self.area_index.plot_area_per_class(
+        fig, ax = self.climate_indexes['Area'].plot_area_per_class(
             clustered_objects=self.clustered_objects,
             **kwargs
         )
@@ -259,17 +271,24 @@ class Application:
         return result
     
 
-    def boxplot_climate_index(self, *args, **kwargs) -> Tuple[Figure, Axes]:
-        fig, ax = self.climate_matcher.boxplot_climate_index(*args, **kwargs)
+    def boxplot_climate_index(self, climate_index: str, **kwargs) -> Tuple[Figure, Axes]:
+        fig, ax = self.monthly_climate_index_matcher.boxplot(
+            climate_index=self.climate_indexes[climate_index],
+            classes_df=self.clustered_objects,
+            **kwargs)
         return fig, ax
     
 
-    def get_climate_index_kruskalwallis(self, *args, **kwargs) -> Tuple[float, float]:
-        s, p = self.climate_matcher.get_climate_index_kruskalwallis(*args, **kwargs)
+    def get_climate_index_kruskalwallis(self, climate_index: str, **kwargs) -> Tuple[float, float]:
+        s, p = self.monthly_climate_index_matcher.kruskal_wallis_test(
+            climate_index=self.climate_indexes[climate_index],
+            classes_df=self.clustered_objects,
+            **kwargs)
         return s, p
     
 
     def get_chronology_comparison(self, crn_column) -> SuperbDataFrame:
+        #Todo: Иправить
         result = self.climate_matcher.get_chronology_comparison(
             self.chronology,
             crn_column,
@@ -279,6 +298,7 @@ class Application:
     
 
     def plot_chronology_comparison(self, crn_column, **kwargs) -> Tuple[Figure, Axes]:
+        #Todo: Иправить
         crn_comparison_df = self.get_chronology_comparison(crn_column)
         fig, ax = self.climate_matcher.plot_chronology_comparison(
             crn_comparison_df,
@@ -289,14 +309,14 @@ class Application:
     
 
     def boxplot_climate(self, **kwargs) -> Tuple[Figure, Axes]:
-        fig, ax = self.climate_matcher.boxplot_climate(
+        fig, ax = self.daily_climate_matcher.boxplot(
             self.clustered_objects, **kwargs
         )
         return fig, ax
     
 
     def get_climate_kruskalwallis(self, **kwargs) -> Tuple[float, float]:
-        s, p = self.climate_matcher.get_climate_kruskalwallis(
+        s, p = self.daily_climate_matcher.kruskal_wallis_test(
             self.clustered_objects, **kwargs
         )
 
@@ -304,7 +324,7 @@ class Application:
     
 
     def get_climate_comparison(self, **kwargs) -> SuperbDataFrame:
-        result = self.climate_matcher.get_climate_comparison(
+        result = self.daily_climate_matcher.get_climate_comparison(
             self.clustered_objects,
             **kwargs
         )
