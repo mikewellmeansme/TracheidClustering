@@ -19,10 +19,8 @@ from typing import (
 )
 
 from zhutils.superb_dataframe import SuperbDataFrame
-from climate_indexes.climate_index import ClimateIndex
-from matchers.daily_climate_matcher import DailyClimateMatcher
-from matchers.monthly_climate_index_matcher import MonthlyClimateIndexMatcher
-from climate_indexes.area_index import AreaIndex
+from matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher
+from climate_indexes import AreaIndex, ClimateIndex
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
