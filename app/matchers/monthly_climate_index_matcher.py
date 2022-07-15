@@ -130,7 +130,7 @@ class MonthlyClimateIndexMatcher(Matcher):
     @staticmethod
     def __merge_with_classes__(df: pd.DataFrame, classes_df: pd.DataFrame) -> pd.DataFrame:
         result = df.merge(classes_df[['Year', 'Class']], on='Year', how='left')
-        return result
+        return result.reset_index(drop=True)
 
 
     @staticmethod
@@ -139,4 +139,4 @@ class MonthlyClimateIndexMatcher(Matcher):
         columns = [col for col in df_copy.columns if col not in ['Year', 'Class']]
         for column in columns:
             df_copy[column] = df_copy[column].shift(1)
-        return df_copy.dropna()
+        return df_copy.dropna().reset_index(drop=True)
