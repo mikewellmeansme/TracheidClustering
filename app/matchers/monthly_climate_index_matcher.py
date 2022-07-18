@@ -37,6 +37,8 @@ class MonthlyClimateIndexMatcher(Matcher):
         Возвращает словарь, где в ключах номер класса, а в значениях, все значения климатического индекса для этого класса
         """
 
+        classes = classes if classes else set(classes_df['Class'])
+
         df = self.__merge_with_classes__(climate_index.climate_index, classes_df)
         groups = self.__get_classes_rows__(df)
 
