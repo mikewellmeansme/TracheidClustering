@@ -139,4 +139,4 @@ class MonthlyClimateIndexMatcher(Matcher):
         columns = [col for col in df_copy.columns if col not in ['Year', 'Class']]
         for column in columns:
             df_copy[column] = df_copy[column].shift(1)
-        return df_copy.dropna().reset_index(drop=True)
+        return df_copy.reset_index(drop=True)
