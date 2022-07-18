@@ -1,7 +1,7 @@
 from abc import ABC
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
-from numpy import ndarray
+from numpy import ndarray, isnan
 from pandas import DataFrame
 from typing import (
     Dict,
@@ -24,3 +24,8 @@ class Matcher(ABC):
     def __get_classes_rows__(df: DataFrame) -> Dict[Hashable, ndarray]:
         groups = df.groupby('Class').groups
         return groups
+
+    @staticmethod
+    def __filter_nan__(l: List) -> List:
+        result = [el for el in l if not isnan(el)]
+        return result

@@ -46,7 +46,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             df = self.__get_shifted_df__(df)
 
         column = month if month else climate_index.name
-        result = {j: list(df.loc[groups[j]][column]) for j in classes}
+        result = {j: self.__filter_nan__(list(df.loc[groups[j]][column])) for j in classes}
 
         return result
 
