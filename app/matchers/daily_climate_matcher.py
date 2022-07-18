@@ -22,21 +22,20 @@ class DailyClimateMatcher(Matcher):
         climate = pd.read_csv(path)
         self.climate = DailyDataFrame(climate)
 
-
     def boxplot(
             self,
             clustered_objects: pd.DataFrame,
             ylim: Optional[List] = None,
             column: str = 'Temperature',
             classes: Optional[List] = None,
-            start_month = 5,
-            end_month = 9,
-            start_day = 1,
-            end_day = 31,
+            start_month: int = 5,
+            end_month: int = 9,
+            start_day: int = 1,
+            end_day: int = 31,
             moving_avg_window: Optional[int] = None,
             prev: bool = False,
             ax: Optional[Axes] = None
-        ) -> Tuple[Optional[Figure], Axes]:
+    ) -> Tuple[Optional[Figure], Axes]:
 
         r"""
         Plots a boxplot of mean temperature \ total precipitation
@@ -74,33 +73,32 @@ class DailyClimateMatcher(Matcher):
         if ax:
             fig = None
         else:
-            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 4), dpi=200)
             ylabel = 'Mean Temperature (°C)' if column == 'Temperature' else 'Total Precipitation (mm)'
             ax.set_xticklabels([cl + 1 for cl in classes])
             ax.set_ylabel(ylabel)
             ax.set_xlabel('Class')
-        
+
         ax.boxplot(totals)
 
         if ylim:
             ax.set_ylim(ylim)
 
         return fig, ax
-    
 
     def kruskal_wallis_test(
             self,
             clustered_objects: pd.DataFrame,
             column: str = 'Temperature',
             classes: Optional[List] = None,
-            start_month = 5,
-            end_month = 9,
-            start_day = 1,
-            end_day = 31,
+            start_month: int = 5,
+            end_month: int = 9,
+            start_day: int = 1,
+            end_day: int = 31,
             moving_avg_window: Optional[int] = None,
             prev: bool = False
-        ) -> Tuple[float, float]:
-        
+    ) -> Tuple[float, float]:
+
         r"""
         Calculates the Kruskall-Wallis stat for partition of mean temperature \ total precipitation
         for the given period (from start_month.start_day till end_month.end_day)
@@ -134,14 +132,13 @@ class DailyClimateMatcher(Matcher):
         s, p = mstats.kruskalwallis(*totals)
 
         return s, p
-    
 
     def get_climate_comparison(
             self,
             clustered_objects: pd.DataFrame,
-            start_month = 5,
-            end_month = 9
-        ) -> SuperbDataFrame:
+            start_month: int = 5,
+            end_month: int = 9
+    ) -> SuperbDataFrame:
 
         r"""
         Params:
@@ -151,18 +148,17 @@ class DailyClimateMatcher(Matcher):
         """
 
         crn = self.climate[
-            (start_month <= self.climate['Month']) & 
+            (start_month <= self.climate['Month']) &
             (self.climate['Month'] <= end_month)
-        ].groupby('Year').mean().reset_index()
-        
+            ].groupby('Year').mean().reset_index()
+
         result = crn.merge(
             clustered_objects[['Year', 'Class']],
-            on='Year', 
+            on='Year',
             how='left'
         ).drop(columns=['Month', 'Day'])
 
         return SuperbDataFrame(result)
-    
 
     def __get_total_climate__(
             self,
@@ -176,7 +172,7 @@ class DailyClimateMatcher(Matcher):
             moving_avg_window: Optional[int] = None,
             prev: bool = False
 
-        ) -> List[List[float]]:
+    ) -> List[List[float]]:
 
         r"""
         Returns the partition of mean temperature \ total precipitation
@@ -213,20 +209,20 @@ class DailyClimateMatcher(Matcher):
                 df = climate_df[
                     (climate_df['Year'] == year - int(prev)) &
                     (
-                        (
-                            ((start_month == climate_df['Month']) & (start_day <= climate_df['Day'])) |
-                            (start_month < climate_df['Month'])
-                        ) & 
-                        (
-                            (climate_df['Month'] < end_month) |
-                            ((climate_df['Month'] ==  end_month) & (climate_df['Day'] <= end_day))
-                        )
+                            (
+                                    ((start_month == climate_df['Month']) & (start_day <= climate_df['Day'])) |
+                                    (start_month < climate_df['Month'])
+                            ) &
+                            (
+                                    (climate_df['Month'] < end_month) |
+                                    ((climate_df['Month'] == end_month) & (climate_df['Day'] <= end_day))
+                            )
                     )
-                ].dropna()[column]
+                    ].dropna()[column]
 
                 if len(df) > 0:
                     res = df.mean() if column == 'Temperature' else df.sum()
                     values.append(res)
             totals.append(values)
-        
+
         return totals

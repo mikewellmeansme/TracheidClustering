@@ -10,13 +10,12 @@ from typing import (
     Optional,
     Tuple,
     List
-) 
+)
 
 from climate_indexes.climate_index import ClimateIndex
 
 
 class MonthlyClimateIndexMatcher(Matcher):
-
 
     def get_values_per_class(
             self,
@@ -25,7 +24,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             prev: bool = False,
             month: Optional[str] = None,
             classes: Optional[List] = None
-        ) -> Dict[int, List]:
+    ) -> Dict[int, List]:
 
         r"""
         Получает все значения индексов по классам
@@ -48,7 +47,6 @@ class MonthlyClimateIndexMatcher(Matcher):
         result = {j: list(df.loc[groups[j]][column]) for j in classes}
 
         return result
-    
 
     def boxplot(
             self,
@@ -58,7 +56,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             month: Optional[str] = None,
             classes: Optional[List] = None,
             ylims: Optional[List] = None
-        ) -> Tuple[Figure, Axes]:
+    ) -> Tuple[Figure, Axes]:
 
         r"""
         Params:
@@ -80,7 +78,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             classes
         )
 
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,4), dpi=200)
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 4), dpi=200)
         ax.boxplot(values_per_class.values())
         title = f"{climate_index.name} {month if month else ''}{' prev' if prev else ''}"
         ax.set_title(title)
@@ -92,7 +90,6 @@ class MonthlyClimateIndexMatcher(Matcher):
 
         return fig, ax
 
-
     def kruskal_wallis_test(
             self,
             climate_index: ClimateIndex,
@@ -100,7 +97,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             prev: bool = False,
             month: Optional[str] = None,
             classes: Optional[List] = None
-        ) -> Tuple[float, float]:
+    ) -> Tuple[float, float]:
 
         r"""
         Params:
@@ -121,17 +118,15 @@ class MonthlyClimateIndexMatcher(Matcher):
         )
 
         s, p = mstats.kruskalwallis(
-                *values_per_class.values()
-            )
+            *values_per_class.values()
+        )
 
         return s, p
-    
-    
+
     @staticmethod
     def __merge_with_classes__(df: pd.DataFrame, classes_df: pd.DataFrame) -> pd.DataFrame:
         result = df.merge(classes_df[['Year', 'Class']], on='Year', how='left')
         return result.reset_index(drop=True)
-
 
     @staticmethod
     def __get_shifted_df__(df) -> pd.DataFrame:
