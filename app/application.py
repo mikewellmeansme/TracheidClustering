@@ -22,7 +22,6 @@ from zhutils.superb_dataframe import SuperbDataFrame
 from matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher, ChronologyMatcher
 from climate_indexes import AreaIndex, ClimateIndex
 from normalized_tracheids import NormalizedTracheids
-from climate_matcher import ClimateMatcher
 from clusterer import Clusterer
 
 pd.options.mode.chained_assignment = None
@@ -42,7 +41,6 @@ class ClusterMeanObdect:
 class Application:
     normalized_tracheids: NormalizedTracheids
     clusterer: Clusterer
-    climate_matcher: ClimateMatcher
     monthly_climate_index_matcher: MonthlyClimateIndexMatcher
     chronology_matcher: ChronologyMatcher
     climate_indexes: Dict[str, ClimateIndex]
@@ -76,8 +74,6 @@ class Application:
             climate_indexes[index] = ClimateIndex(index, climate_index_paths[index])
 
         self.climate_indexes = climate_indexes
-
-        # self.climate_matcher = ClimateMatcher(climate_path, self.clustered_objects, climate_indexes_paths)
 
     def train_clusterer(self, method: str = 'A', nclusters: int = 4) -> None:
 
