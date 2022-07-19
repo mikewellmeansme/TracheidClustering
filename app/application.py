@@ -19,7 +19,7 @@ from typing import (
 )
 
 from zhutils.superb_dataframe import SuperbDataFrame
-from matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher
+from matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher, ChronologyMatcher
 from climate_indexes import AreaIndex, ClimateIndex
 from normalized_tracheids import NormalizedTracheids
 from climate_matcher import ClimateMatcher
@@ -43,6 +43,9 @@ class Application:
     normalized_tracheids: NormalizedTracheids
     clusterer: Clusterer
     climate_matcher: ClimateMatcher
+    monthly_climate_index_matcher: MonthlyClimateIndexMatcher
+    chronology_matcher: ChronologyMatcher
+    climate_indexes: Dict[str, ClimateIndex]
     clustered_objects: pd.DataFrame
     chronology: pd.DataFrame
 
@@ -65,6 +68,8 @@ class Application:
 
         self.daily_climate_matcher = DailyClimateMatcher(climate_path)
         self.monthly_climate_index_matcher = MonthlyClimateIndexMatcher()
+        self.chronology_matcher = ChronologyMatcher()
+
         climate_indexes['Area'] = AreaIndex(climate_path)
 
         for index in climate_index_paths:
@@ -93,7 +98,6 @@ class Application:
     def change_class_names(self, number_to_name: Dict[int, int]) -> None:
         self.clusterer.change_class_names(number_to_name)
         self.clustered_objects['Class'] = self.clusterer.convert_class_number_to_name(self.clustered_objects['Class'])
-        self.climate_matcher.change_class_names(clusterer=self.clusterer)
 
     def get_class_mean_objects(
             self,
@@ -277,9 +281,9 @@ class Application:
         return s, p
 
     def get_chronology_comparison(self, crn_column) -> SuperbDataFrame:
-        # Todo: Исправить
-        result = self.climate_matcher.get_chronology_comparison(
+        result = self.chronology_matcher.get_chronology_comparison(
             self.chronology,
+            self.climate_indexes,
             crn_column,
             self.clustered_objects
         )
@@ -288,8 +292,9 @@ class Application:
     def plot_chronology_comparison(self, crn_column, **kwargs) -> Tuple[Figure, Axes]:
         # Todo: Исправить
         crn_comparison_df = self.get_chronology_comparison(crn_column)
-        fig, ax = self.climate_matcher.plot_chronology_comparison(
+        fig, ax = self.chronology_matcher.plot_chronology_comparison(
             crn_comparison_df,
+            self.climate_indexes,
             crn_column,
             **kwargs
         )
