@@ -198,7 +198,7 @@ def start_kw(class_selection, moving_avg_window):
 
 dash_app.layout = html.Div(children=[
     dbc.Container([
-        html.H1(children='Krus'),
+        html.H1(children='Kruskal–Wallis statistics'),
         dcc.RadioItems(
                 ['All classes', 'Only 1-2-3'],
                 value='All classes',
