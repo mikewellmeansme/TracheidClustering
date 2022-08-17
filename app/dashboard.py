@@ -151,11 +151,14 @@ def update_cedar_boxplot(relayout_data, column):
     Output('kw', 'figure'),
     [
         Input('class-selection-radiobutton', 'value'),
-        Input('moving-average', 'value')
+        Input('moving-average', 'value'),
+        Input('start-year', 'value'),
+        Input('end-year', 'value'),
     ]
 )
-def start_kw(class_selection, moving_avg_window):
+def start_kw(class_selection, moving_avg_window, start_year, end_year):
     def kruskall_test(df: pd.DataFrame, index: str):
+        df = df[df['Year'].between(start_year, end_year)]
         groups = df.groupby('Class').groups
         classes = set(df['Class']) if class_selection == 'All classes' else [0,1,2]
         s, p = mstats.kruskalwallis(
@@ -205,6 +208,8 @@ dash_app.layout = html.Div(children=[
                 id='class-selection-radiobutton',
         ),
         dcc.Input(value=21, id="moving-average", type="number"),
+        dcc.Input(value=1918, id="start-year", type="number"),
+        dcc.Input(value=2020, id="end-year", type="number"),
         dcc.Graph(
             id='kw',
             figure ={'data': []}
