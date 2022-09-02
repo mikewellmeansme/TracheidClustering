@@ -19,3 +19,7 @@ res_A_CWT <- NbClust(data_A_CWT, min.nc = 2, max.nc = 20, method = "kmean")
 res_B_Diam <- NbClust(data_B_Diam, min.nc = 2, max.nc = 20, method = "kmean")
 res_B_CWT <- NbClust(data_B_CWT, min.nc = 2, max.nc = 20, method = "kmean")
 
+
+data_kaz_A = read.csv(file='output/KAZ_obects_for_clustering_A.csv', sep=",", dec=".")
+
+NbClust(data_kaz_A, min.nc = 2, max.nc = 20, method = "kmean")
