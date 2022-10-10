@@ -18,7 +18,7 @@ from typing import (
     Set
 )
 
-from zhutils.superb_dataframe import SuperbDataFrame
+from zhutils.dataframes import SuperbDataFrame
 from matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher, ChronologyMatcher
 from climate_indexes import AreaIndex, ClimateIndex
 from normalized_tracheids import NormalizedTracheids

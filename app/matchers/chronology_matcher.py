@@ -9,7 +9,7 @@ from typing import (
     Tuple,
     List
 ) 
-from zhutils.superb_dataframe import SuperbDataFrame
+from zhutils.dataframes import SuperbDataFrame
 
 from climate_indexes import ClimateIndex
 from matchers.matcher import Matcher

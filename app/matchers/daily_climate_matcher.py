@@ -11,8 +11,7 @@ from typing import (
     Tuple,
     List
 )
-from zhutils.daily_dataframe import DailyDataFrame
-from zhutils.superb_dataframe import SuperbDataFrame
+from zhutils.dataframes import DailyDataFrame, SuperbDataFrame
 
 
 class DailyClimateMatcher(Matcher):
