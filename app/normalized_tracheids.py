@@ -6,24 +6,12 @@ from pandas import (
 )
 from dataclasses import dataclass
 from zhutils.correlation import dropna_spearmanr
+from zhutils.tracheids import Tracheids
 
-
-def get_normalized_list(x: list, norm : int):
-    """
-    Функция получения нормированного списка
-    :param x: список для нормирования
-    :param norm: норма
-    :return: l_norm - нормированный к e список l
-    """
-    l_raw = []  # промежуточный список
-    n = len(x)
-    for i in range(n):
-        for j in range(norm):
-            l_raw += [x[i]]
-    l_norm = []
-    for i in range(norm):
-        l_norm += [1 / n * sum([l_raw[j] for j in range(n * i, n * (i + 1))])]
-    return l_norm
+rename_to = {
+    'Dmean': 'D',
+    'CWTmean': 'CWT'
+}
 
 
 @dataclass
@@ -41,7 +29,6 @@ class NormalizedTracheids:
     obects_for_clustering: dict[str, DataFrame] = None
     methods_comparison: DataFrame = None
 
-
     def __post_init__(self) -> None:
         self.normalized_df = self._get_normalized_df()
 
@@ -52,21 +39,18 @@ class NormalizedTracheids:
         self.obects_for_clustering = self._get_obects_for_clustering()
 
         self.methods_comparison = self._get_methods_comparison()
-    
 
     def to_csv(self, save_path: str) -> None:
         self.normalized_df.to_csv(f'{save_path}/{self.name}_normalized_df.csv', index=False)
         self.obects_for_clustering['Method A'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_A.csv', index=False)
         self.obects_for_clustering['Method B'].to_csv(f'{save_path}/{self.name}_obects_for_clustering_B.csv', index=False)
         self.methods_comparison.to_csv(f'{save_path}/{self.name}_methods_comparison.csv', index=False)
-    
 
     def to_excel(self, save_path: str) -> None:
         self.normalized_df.to_excel(f'{save_path}/{self.name}_normalized_df.xlsx', index=False)
         self.obects_for_clustering['Method A'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_A.xlsx', index=False)
         self.obects_for_clustering['Method B'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_B.xlsx', index=False)
         self.methods_comparison.to_excel(f'{save_path}/{self.name}_methods_comparison.xlsx', index=False)
-
 
     def __get_columns(self, tree_column:bool = True) -> dict[int, str]:
         i = int(tree_column)
@@ -78,33 +62,23 @@ class NormalizedTracheids:
             columns[1] = 'Year'
 
         return columns
-    
 
     def _get_normalized_df(self) -> DataFrame:
 
-        xlsx_file = ExcelFile(self.file_path)
+        tracheids = Tracheids(self.name, self.file_path, self.trees)
+        norm_tracheids = tracheids.normalize(self.norm_to)
 
-        columns = self.__get_columns()
-        
-        dataframes = []
+        result = norm_tracheids.\
+            pivot(columns='№', values=['Dmean', 'CWTmean'], index=['Tree', 'Year']).\
+            reset_index()
 
-        for tree in self.trees:
-            df = xlsx_file.parse(tree)
-            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-            df = df.dropna(axis=0)
+        result.columns = [
+            ''.join(
+                [rename_to[el] if el in rename_to else str(el) for el in col]
+            ) for col in result.columns
+        ]
 
-            norm_traches = dict()
-            for year in set(df['Год']):
-                norm_traches[int(year)] = [tree, int(year)] +\
-                    get_normalized_list(list(df[df['Год']==year]['Dmean']), self.norm_to) +\
-                    get_normalized_list(list(df[df['Год']==year]['CWTmean']), self.norm_to)
-            
-            dataframes += [DataFrame(norm_traches).transpose().rename(columns=columns).reset_index(drop=True)]
-
-        normalized_df = concat(dataframes).reset_index(drop=True)
-
-        return normalized_df
-
+        return result
 
     def _get_mean_object_years(self) -> dict[int, Series]:
         mean_objects_years = dict()
@@ -117,7 +91,6 @@ class NormalizedTracheids:
         
         return mean_objects_years
 
-
     def _get_mean_object_trees(self) -> dict[int, Series]:
         mean_objects_trees = dict()
 
@@ -128,13 +101,11 @@ class NormalizedTracheids:
         
         return mean_objects_trees
 
-
     def _get_mean_object_global(self) -> Series:
         temp_data = self.normalized_df.drop(columns=['Year', 'Tree'])
         mean_object_global = temp_data.mean()
 
         return mean_object_global
-    
 
     def _get_obects_for_clustering(self) -> dict[str, DataFrame]:
 
@@ -144,7 +115,6 @@ class NormalizedTracheids:
         }
 
         return obects_for_clustering
-
 
     def _method_A(self) -> DataFrame:
         objects_method_A = []
@@ -157,7 +127,6 @@ class NormalizedTracheids:
         objects_method_A = DataFrame(objects_method_A).rename(columns=columns)
 
         return objects_method_A
-
 
     def _method_B(self) -> DataFrame:
 
@@ -183,7 +152,6 @@ class NormalizedTracheids:
         objects_method_B = objects_method_B.reset_index().rename(columns={'index':'Year'})
 
         return objects_method_B
-    
 
     def _get_methods_comparison(self) -> DataFrame:
         r_coeffs = []
