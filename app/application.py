@@ -149,7 +149,11 @@ class Application:
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 3 * nrows), dpi=200)
         plt.subplots_adjust(hspace=0.3)
 
-        axis_positions = product(range(nrows), range(ncols))
+        if nrows > 1:
+            axis_positions = product(range(nrows), range(ncols))
+        else:
+            axis_positions = range(ncols)
+        
         d_xrange = range(1, norm_to + 1)
         cwt_xrange = range(norm_to + 2, norm_to * 2 + 2)
 
@@ -183,11 +187,15 @@ class Application:
             ax.text(0.75, 0.94, 'CWT', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
             ax.text(0.1, 0.95, f'{chr(65 + i)})', transform=ax.transAxes, fontsize=16, va='top', ha='right')
 
-        for i in range(nrows):
-            axes[i, 0].set_ylabel("Deviation (rel. units)")
-        axes[nrows - 1, 0].set_xlabel("Standardized cell position")
-        axes[nrows - 1, 1].set_xlabel("Standardized cell position")
-
+        if nrows > 1:
+            for i in range(nrows):
+                axes[i, 0].set_ylabel("Deviation (rel. units)")
+            axes[nrows - 1, 0].set_xlabel("Standardized cell position")
+            axes[nrows - 1, 1].set_xlabel("Standardized cell position")
+        else:
+            axes[0].set_ylabel("Deviation (rel. units)")
+            axes[0].set_xlabel("Standardized cell position")
+            axes[1].set_xlabel("Standardized cell position")
         return fig, axes
 
     @staticmethod
