@@ -1,5 +1,6 @@
-app/input
-app/output
+data
+results
+notebooks
 .Rhistory
 __pycache__
 .idea
