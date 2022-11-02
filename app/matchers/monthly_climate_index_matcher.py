@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from matchers.matcher import Matcher
+from app.matchers.matcher import Matcher
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from scipy.stats import mstats
@@ -12,7 +12,7 @@ from typing import (
     List
 )
 
-from climate_indexes.climate_index import ClimateIndex
+from app.climate_indexes.climate_index import ClimateIndex
 
 
 class MonthlyClimateIndexMatcher(Matcher):

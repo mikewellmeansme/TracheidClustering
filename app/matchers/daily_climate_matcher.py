@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from matchers.matcher import Matcher
+from app.matchers.matcher import Matcher
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from scipy.stats import mstats

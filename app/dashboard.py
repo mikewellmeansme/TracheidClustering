@@ -12,7 +12,7 @@ from dash import (
 )
 import plotly.express as px
 import pandas as pd
-from application import Application
+from app.application import Application
 from scipy.stats import mstats
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go

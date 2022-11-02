@@ -12,7 +12,7 @@ from typing import (
 )
 from zhutils.dataframes import DailyDataFrame, SuperbDataFrame
 
-from climate_indexes.climate_index import ClimateIndex
+from app.climate_indexes.climate_index import ClimateIndex
 
 
 class AreaIndex(ClimateIndex):
