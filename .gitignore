@@ -5,3 +5,4 @@ notebooks
 __pycache__
 .idea
 playground*
+*.R
