@@ -3,6 +3,7 @@ from pandas import (
     Series
 )
 from dataclasses import dataclass
+from typing import Dict, Optional
 from zhutils.correlation import dropna_spearmanr
 from zhutils.tracheids import Tracheids
 
@@ -20,12 +21,12 @@ class NormalizedTracheids:
     trees: list
     norm_to: int = 15
     year_threshold: int = 3
-    normalized_df : DataFrame = None
-    mean_objects_years: dict[int, Series] = None
-    mean_objects_trees: dict[int, Series] = None
-    mean_object_global: Series = None
-    obects_for_clustering: dict[str, DataFrame] = None
-    methods_comparison: DataFrame = None
+    normalized_df : Optional[DataFrame] = None
+    mean_objects_years: Optional[Dict[int, Series]] = None
+    mean_objects_trees: Optional[Dict[int, Series]] = None
+    mean_object_global: Optional[Series] = None
+    obects_for_clustering: Optional[Dict[str, DataFrame]] = None
+    methods_comparison: Optional[DataFrame] = None
 
     def __post_init__(self) -> None:
         self.normalized_df = self._get_normalized_df()
@@ -50,7 +51,7 @@ class NormalizedTracheids:
         self.obects_for_clustering['Method B'].to_excel(f'{save_path}/{self.name}_obects_for_clustering_B.xlsx', index=False)
         self.methods_comparison.to_excel(f'{save_path}/{self.name}_methods_comparison.xlsx', index=False)
 
-    def __get_columns(self, tree_column:bool = True) -> dict[int, str]:
+    def __get_columns(self, tree_column:bool = True) -> Dict[int, str]:
         i = int(tree_column)
 
         columns = {_:f'D{_-i}' if _ < self.norm_to + 1 + i else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
@@ -78,7 +79,7 @@ class NormalizedTracheids:
 
         return result
 
-    def _get_mean_object_years(self) -> dict[int, Series]:
+    def _get_mean_object_years(self) -> Dict[int, Series]:
         mean_objects_years = dict()
 
         for year in set(self.normalized_df['Year']):
@@ -89,7 +90,7 @@ class NormalizedTracheids:
         
         return mean_objects_years
 
-    def _get_mean_object_trees(self) -> dict[int, Series]:
+    def _get_mean_object_trees(self) -> Dict[int, Series]:
         mean_objects_trees = dict()
 
         for tree in set(self.normalized_df['Tree']):
@@ -105,7 +106,7 @@ class NormalizedTracheids:
 
         return mean_object_global
 
-    def _get_obects_for_clustering(self) -> dict[str, DataFrame]:
+    def _get_obects_for_clustering(self) -> Dict[str, DataFrame]:
 
         obects_for_clustering = {
             'Method A': self._method_A(),
