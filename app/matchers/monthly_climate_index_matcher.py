@@ -22,7 +22,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             climate_index: ClimateIndex,
             classes_df: pd.DataFrame,
             prev: bool = False,
-            month: Optional[str] = None,
+            months: Optional[List[str]] = None,
             classes: Optional[List] = None
     ) -> Dict[int, List]:
 
@@ -31,7 +31,7 @@ class MonthlyClimateIndexMatcher(Matcher):
         Params:
             classes_df: Dataframe with 'Class' and 'Year' columns.
             prev: Флаг того, сравнивается ли климатика этого года или предыдущего
-            month: Месяц, по которому сравниваем. По-умолчанию сравниваем по колонке с названием индекса.
+            months: Месяцы, по среднему которых сравниваем. По-умолчанию сравниваем по среднему за год.
             classes: Классы, для которых происходит сравнение. По-умолчанию: все.
         
         Возвращает словарь, где в ключах номер класса, а в значениях, все значения климатического индекса для этого класса
@@ -45,8 +45,8 @@ class MonthlyClimateIndexMatcher(Matcher):
         if prev:
             df = self.__get_shifted_df__(df)
 
-        column = month if month else climate_index.name
-        result = {j: self.__filter_nan__(list(df.loc[groups[j]][column])) for j in classes}
+        columns = months if months else df.drop(columns=['Year']).columns
+        result = {j: self.__filter_nan__(list(df.loc[groups[j]][columns].mean(axis=1))) for j in classes}
 
         return result
 
@@ -55,9 +55,9 @@ class MonthlyClimateIndexMatcher(Matcher):
             climate_index: ClimateIndex,
             classes_df: pd.DataFrame,
             prev: bool = False,
-            month: Optional[str] = None,
+            months: Optional[List[str]] = None,
             classes: Optional[List] = None,
-            ylims: Optional[List] = None
+            ylims: Optional[List[float]] = None
     ) -> Tuple[Figure, Axes]:
 
         r"""
@@ -65,7 +65,7 @@ class MonthlyClimateIndexMatcher(Matcher):
         Строит boxplot индекса по классам
             classes_df: Dataframe with 'Class' and 'Year' columns.
             prev: Флаг того, сравнивается ли климатика этого года или предыдущего
-            month: Месяц, по которому сравниваем. По-умолчанию сравниваем по колонке с названием индекса.
+            months: Месяцы, по среднему которых сравниваем. По-умолчанию сравниваем по среднему за год.
             classes: Классы, для которых происходит сравнение. По-умолчанию: все.
             ylims: Пределы по оси Y.
         """
@@ -76,13 +76,13 @@ class MonthlyClimateIndexMatcher(Matcher):
             climate_index,
             classes_df,
             prev,
-            month,
+            months,
             classes
         )
 
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 4), dpi=200)
         ax.boxplot(values_per_class.values())
-        title = f"{climate_index.name} {month if month else ''}{' prev' if prev else ''}"
+        title = f"{climate_index.name} {' prev' if prev else ''}"
         ax.set_title(title)
         ax.set_xticklabels([cl + 1 for cl in classes])
         ax.set_xlabel('Class')
@@ -97,7 +97,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             climate_index: ClimateIndex,
             classes_df: pd.DataFrame,
             prev: bool = False,
-            month: Optional[str] = None,
+            months: Optional[List[str]] = None,
             classes: Optional[List] = None
     ) -> Tuple[float, float]:
 
@@ -105,7 +105,7 @@ class MonthlyClimateIndexMatcher(Matcher):
         Params:
             classes_df: Dataframe with 'Class' and 'Year' columns
             prev: Флаг того, сравнивается ли климатика этого года или предыдущего
-            month: Месяц, по которому сравниваем. По-умолчанию сравниваем по колонке с названием индекса.
+            months: Месяцы, по среднему которых сравниваем. По-умолчанию сравниваем по среднему за год.
             classes: Классы, для которых происходит сравнение. По-умолчанию: все.
         """
 
@@ -115,7 +115,7 @@ class MonthlyClimateIndexMatcher(Matcher):
             climate_index,
             classes_df,
             prev,
-            month,
+            months,
             classes
         )
 
