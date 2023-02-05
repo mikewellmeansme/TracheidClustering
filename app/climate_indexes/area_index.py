@@ -58,7 +58,7 @@ class AreaIndex(ClimateIndex):
         climate_df['Prec_cumsum'] = climate_df.fillna(0).groupby('Year')['Precipitation'].cumsum()
 
         # Smoothing temperature and cumulative precipitation with 7-day mooving average
-        moving_avg = climate_df.moving_avg(['Temperature', 'Prec_cumsum'])
+        moving_avg = climate_df.moving_avg(7, ['Temperature', 'Prec_cumsum'])
         climate_df['Temp_rolling'] = moving_avg['Temperature']
         climate_df['Prec_cumsum_rolling'] = moving_avg['Prec_cumsum']
 
