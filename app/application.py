@@ -284,18 +284,18 @@ class Application:
         )
         return s, p
 
-    def get_chronology_comparison(self, crn_column) -> SuperbDataFrame:
+    def get_chronology_comparison(self, months, crn_column) -> SuperbDataFrame:
         result = self.chronology_matcher.get_chronology_comparison(
             self.chronology,
             self.climate_indexes,
+            months,
             crn_column,
             self.clustered_objects
         )
         return result
 
-    def plot_chronology_comparison(self, crn_column, **kwargs) -> Tuple[Figure, Axes]:
-        # Todo: Исправить
-        crn_comparison_df = self.get_chronology_comparison(crn_column)
+    def plot_chronology_comparison(self, months, crn_column, **kwargs) -> Tuple[Figure, Axes]:
+        crn_comparison_df = self.get_chronology_comparison(months, crn_column)
         fig, ax = self.chronology_matcher.plot_chronology_comparison(
             crn_comparison_df,
             self.climate_indexes,

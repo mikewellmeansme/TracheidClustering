@@ -21,6 +21,7 @@ class ChronologyMatcher(Matcher):
     def get_chronology_comparison(
             chronology: pd.DataFrame,
             climate_indexes: Dict[str, ClimateIndex],
+            months: Dict[str, List[str]],
             crn_column: str,
             clustered_objects: pd.DataFrame
         ) -> SuperbDataFrame:
@@ -32,9 +33,15 @@ class ChronologyMatcher(Matcher):
             clustered_objects:
         """
         
-        # BUG: ['PDSI'] not in index
+        to_join = []
+        for index in climate_indexes:
+            clim_i_df = climate_indexes[index].data.set_index('Year')
+            columns = months.get(index) or clim_i_df.columns
+            clim_i_df[index] = clim_i_df[columns].mean(axis=1)
+            to_join.append(clim_i_df[index])
+
         df = chronology[['Year', crn_column]].set_index('Year').join(
-            [climate_indexes[index].climate_index[['Year', index]].set_index('Year') for index in climate_indexes],
+            to_join,
             how='left'
         ).reset_index()
         result = clustered_objects[['Year', 'Class']].merge(df, on='Year', how='left')
