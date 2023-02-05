@@ -17,7 +17,7 @@ from app.climate_indexes.climate_index import ClimateIndex
 
 class AreaIndex(ClimateIndex):
     name: str = "Area"
-    climate_index: pd.DataFrame
+    data: pd.DataFrame
     climate: DailyDataFrame
     start_month: int
     end_month: int
@@ -39,7 +39,7 @@ class AreaIndex(ClimateIndex):
         self.end_month = end_month
         self.start_day = start_day
         self.end_day = end_day
-        self.climate_index = self.__get_area_index__()
+        self.data = self.__get_area_index__()
 
     def __get_cut_climate__(self) -> pd.DataFrame:
 
@@ -119,7 +119,7 @@ class AreaIndex(ClimateIndex):
             prec_ylim: Limits for precipitation Y axis (mm)
         """
 
-        area = self.climate_index.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
+        area = self.data.merge(clustered_objects[['Year', 'Class']], on='Year', how='left')
         cut_climate = self.__get_cut_climate__()
 
         nclasses = len(set(clustered_objects['Class']))

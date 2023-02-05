@@ -39,7 +39,7 @@ class MonthlyClimateIndexMatcher(Matcher):
 
         classes = classes if classes else set(classes_df['Class'])
 
-        df = self.__merge_with_classes__(climate_index.climate_index, classes_df)
+        df = self.__merge_with_classes__(climate_index.data, classes_df)
         groups = self.__get_classes_rows__(df)
 
         if prev:
