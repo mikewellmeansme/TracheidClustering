@@ -31,7 +31,8 @@ class ChronologyMatcher(Matcher):
             crn_column: 
             clustered_objects:
         """
-
+        
+        # BUG: ['PDSI'] not in index
         df = chronology[['Year', crn_column]].set_index('Year').join(
             [climate_indexes[index].climate_index[['Year', index]].set_index('Year') for index in climate_indexes],
             how='left'
