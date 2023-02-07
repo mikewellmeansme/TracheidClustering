@@ -198,7 +198,7 @@ class DailyClimateMatcher(Matcher):
 
         climate_df = DailyDataFrame(self.climate.copy())
         if moving_avg_window:
-            moving_avg = climate_df.moving_avg([column], window=moving_avg_window)
+            moving_avg = climate_df.moving_avg(columns=[column], window=moving_avg_window)
             climate_df[column] = moving_avg[column]
 
         for c in classes:
