@@ -158,6 +158,10 @@ class Application:
         cwt_xrange = range(norm_to + 2, norm_to * 2 + 2)
 
         for i, pos in enumerate(axis_positions):
+            
+            if i >= nclasses:
+                break
+            
             class_title = f' {class_titles[i]}' if class_titles else ''
 
             ax = axes[pos]
