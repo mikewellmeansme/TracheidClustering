@@ -57,10 +57,17 @@ class Application:
             crn_path: str,
             climate_paths: Dict[str, str],
             climate_index_paths: Optional[Dict[str, str]] = None,
+            tracheid_norm_to: int = 15,
+            tracheid_year_threshold: int = 3
     ) -> None:
 
-        normalized_tracheids = NormalizedTracheids(tracheid_name, tracheid_path, trees)
-        self.normalized_tracheids = normalized_tracheids
+        self.normalized_tracheids = NormalizedTracheids(
+            tracheid_name,
+            tracheid_path,
+            trees,
+            tracheid_norm_to,
+            tracheid_year_threshold
+        )
         self.train_clusterer()
 
         self.chronology = pd.read_csv(crn_path)
