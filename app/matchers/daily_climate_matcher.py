@@ -15,14 +15,10 @@ from zhutils.dataframes import DailyDataFrame, SuperbDataFrame
 
 
 class DailyClimateMatcher(Matcher):
-    climate: DailyDataFrame
-
-    def __init__(self, path: str) -> None:
-        climate = pd.read_csv(path)
-        self.climate = DailyDataFrame(climate)
 
     def boxplot(
             self,
+            climate: DailyDataFrame,
             clustered_objects: pd.DataFrame,
             ylim: Optional[List] = None,
             column: str = 'Temperature',
@@ -59,6 +55,7 @@ class DailyClimateMatcher(Matcher):
         classes = classes if classes else set(clustered_objects['Class'])
 
         totals = self.__get_total_climate__(
+            climate,
             clustered_objects,
             column,
             classes,
@@ -87,6 +84,7 @@ class DailyClimateMatcher(Matcher):
 
     def kruskal_wallis_test(
             self,
+            climate: DailyDataFrame,
             clustered_objects: pd.DataFrame,
             column: str = 'Temperature',
             classes: Optional[List] = None,
@@ -117,6 +115,7 @@ class DailyClimateMatcher(Matcher):
         """
 
         totals = self.__get_total_climate__(
+            climate,
             clustered_objects,
             column,
             classes,
@@ -134,6 +133,7 @@ class DailyClimateMatcher(Matcher):
 
     def get_climate_comparison(
             self,
+            climate: DailyDataFrame,
             clustered_objects: pd.DataFrame,
             start_month: int = 5,
             end_month: int = 9
@@ -146,9 +146,9 @@ class DailyClimateMatcher(Matcher):
             end_month:
         """
 
-        crn = self.climate[
-            (start_month <= self.climate['Month']) &
-            (self.climate['Month'] <= end_month)
+        crn = climate[
+            (start_month <= climate['Month']) &
+            (climate['Month'] <= end_month)
             ].groupby('Year').mean().reset_index()
 
         result = crn.merge(
@@ -161,6 +161,7 @@ class DailyClimateMatcher(Matcher):
 
     def __get_total_climate__(
             self,
+            climate : DailyDataFrame,
             clustered_objects: pd.DataFrame,
             column: str,
             classes: List,
@@ -196,7 +197,7 @@ class DailyClimateMatcher(Matcher):
         classes = classes if classes else set(clustered_objects['Class'])
         groups = self.__get_classes_rows__(clustered_objects)
 
-        climate_df = DailyDataFrame(self.climate.copy())
+        climate_df = DailyDataFrame(climate.copy())
         if moving_avg_window:
             moving_avg = climate_df.moving_avg(columns=[column], window=moving_avg_window)
             climate_df[column] = moving_avg[column]

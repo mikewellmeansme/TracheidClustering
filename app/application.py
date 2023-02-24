@@ -18,7 +18,7 @@ from typing import (
     Set
 )
 
-from zhutils.dataframes import SuperbDataFrame
+from zhutils.dataframes import SuperbDataFrame, DailyDataFrame
 from app.matchers import DailyClimateMatcher, MonthlyClimateIndexMatcher, ChronologyMatcher
 from app.climate_indexes import AreaIndex, ClimateIndex
 from app.normalized_tracheids import NormalizedTracheids
@@ -41,11 +41,13 @@ class ClusterMeanObdect:
 class Application:
     normalized_tracheids: NormalizedTracheids
     clusterer: Clusterer
+    daily_climate_matcher: DailyClimateMatcher
     monthly_climate_index_matcher: MonthlyClimateIndexMatcher
     chronology_matcher: ChronologyMatcher
     climate_indexes: Dict[str, ClimateIndex]
     clustered_objects: pd.DataFrame
     chronology: pd.DataFrame
+    climate_dfs: Dict[str, DailyDataFrame]
 
     def __init__(
             self,
@@ -53,7 +55,7 @@ class Application:
             tracheid_path: str,
             trees: List,
             crn_path: str,
-            climate_path: str,
+            climate_paths: Dict[str, str],
             climate_index_paths: Optional[Dict[str, str]] = None,
     ) -> None:
 
@@ -62,18 +64,22 @@ class Application:
         self.train_clusterer()
 
         self.chronology = pd.read_csv(crn_path)
-        climate_indexes = dict()
+        climate_indexes = {}
 
-        self.daily_climate_matcher = DailyClimateMatcher(climate_path)
+        climate_dfs = {}
+        for station_name, path in climate_paths.items():
+            climate_dfs[station_name] = DailyDataFrame.from_csv(path)
+            climate_indexes[f'{station_name}_Area'] = AreaIndex(path)
+
+        self.daily_climate_matcher = DailyClimateMatcher()
         self.monthly_climate_index_matcher = MonthlyClimateIndexMatcher()
         self.chronology_matcher = ChronologyMatcher()
-
-        climate_indexes['Area'] = AreaIndex(climate_path)
 
         for index in climate_index_paths:
             climate_indexes[index] = ClimateIndex(index, climate_index_paths[index])
 
         self.climate_indexes = climate_indexes
+        self.climate_dfs = climate_dfs
 
     def train_clusterer(self, method: str = 'A', nclusters: int = 4) -> None:
 
@@ -224,9 +230,9 @@ class Application:
 
         return result
 
-    def plot_area_per_class(self, **kwargs) -> Tuple[Figure, Axes]:
+    def plot_area_per_class(self, station_name: str, **kwargs) -> Tuple[Figure, Axes]:
 
-        fig, ax = self.climate_indexes['Area'].plot_area_per_class(
+        fig, ax = self.climate_indexes[f'{station_name}_Area'].plot_area_per_class(
             clustered_objects=self.clustered_objects,
             **kwargs
         )
@@ -308,21 +314,26 @@ class Application:
         )
         return fig, ax
 
-    def boxplot_climate(self, **kwargs) -> Tuple[Figure, Axes]:
+    def boxplot_climate(self, station_name: str, **kwargs) -> Tuple[Figure, Axes]:
         fig, ax = self.daily_climate_matcher.boxplot(
-            self.clustered_objects, **kwargs
+            self.climate_dfs[station_name],
+            self.clustered_objects,
+            **kwargs
         )
         return fig, ax
 
-    def get_climate_kruskalwallis(self, **kwargs) -> Tuple[float, float]:
+    def get_climate_kruskalwallis(self, station_name: str, **kwargs) -> Tuple[float, float]:
         s, p = self.daily_climate_matcher.kruskal_wallis_test(
-            self.clustered_objects, **kwargs
+            self.climate_dfs[station_name],
+            self.clustered_objects,
+            **kwargs
         )
 
         return s, p
 
-    def get_climate_comparison(self, **kwargs) -> SuperbDataFrame:
+    def get_climate_comparison(self, station_name: str, **kwargs) -> SuperbDataFrame:
         result = self.daily_climate_matcher.get_climate_comparison(
+            self.climate_dfs[station_name],
             self.clustered_objects,
             **kwargs
         )
