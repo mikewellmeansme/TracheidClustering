@@ -54,9 +54,9 @@ class Application:
             tracheid_name: str,
             tracheid_path: str,
             trees: List,
-            crn_path: str,
-            climate_paths: Dict[str, str],
-            climate_index_paths: Optional[Dict[str, str]] = None,
+            crn_path: Optional[str] = None,
+            climate_paths: Optional[Dict[str, str]] = {},
+            climate_index_paths: Optional[Dict[str, str]] = {},
             tracheid_norm_to: int = 15,
             tracheid_year_threshold: int = 3,
             nclusters: int = 4
@@ -71,7 +71,7 @@ class Application:
         )
         self.train_clusterer(nclusters=nclusters)
 
-        self.chronology = pd.read_csv(crn_path)
+        self.chronology = pd.read_csv(crn_path) if crn_path else None
         climate_indexes = {}
 
         climate_dfs = {}
