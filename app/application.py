@@ -59,7 +59,9 @@ class Application:
             climate_index_paths: Optional[Dict[str, str]] = {},
             tracheid_norm_to: int = 15,
             tracheid_year_threshold: int = 3,
-            nclusters: int = 4
+            nclusters: int = 4,
+            min_clusters: int = 3,
+            max_clusters: int = 10
     ) -> None:
 
         self.normalized_tracheids = NormalizedTracheids(
@@ -69,7 +71,7 @@ class Application:
             tracheid_norm_to,
             tracheid_year_threshold
         )
-        self.train_clusterer(nclusters=nclusters)
+        self.train_clusterer('A', nclusters, min_clusters, max_clusters)
 
         self.chronology = pd.read_csv(crn_path) if crn_path else None
         climate_indexes = {}
@@ -89,13 +91,29 @@ class Application:
         self.climate_indexes = climate_indexes
         self.climate_dfs = climate_dfs
 
-    def train_clusterer(self, method: str = 'A', nclusters: int = 4) -> None:
+    def train_clusterer(
+            self,
+            method: str = 'A',
+            nclusters: int = 4,
+            min_clusters: int = 3,
+            max_clusters: int = 10
+        ) -> None:
 
         if method.upper() not in 'AB':
             raise Exception(f'Wrong method given! Expected A or B, got {method}!')
 
         clusterer = Clusterer()
-        clusterer.fit(self.normalized_tracheids.obects_for_clustering[f'Method {method}'], nclusters)
+        if nclusters == 'best':
+            clusterer.fit_best(
+                self.normalized_tracheids.obects_for_clustering[f'Method {method}'],
+                min_clusters,
+                max_clusters
+            )
+        else:
+            clusterer.fit(
+                self.normalized_tracheids.obects_for_clustering[f'Method {method}'],
+                nclusters
+            )
         self.clusterer = clusterer
 
         pred = clusterer.predict(self.normalized_tracheids.obects_for_clustering[f'Method {method}'])
