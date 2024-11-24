@@ -21,6 +21,7 @@ class NormalizedTracheids:
     trees: list
     norm_to: int = 15
     year_threshold: int = 3
+    dmean_only: bool = False
     normalized_df : Optional[DataFrame] = None
     mean_objects_years: Optional[Dict[int, Series]] = None
     mean_objects_trees: Optional[Dict[int, Series]] = None
@@ -53,8 +54,13 @@ class NormalizedTracheids:
 
     def __get_columns(self, tree_column:bool = True) -> Dict[int, str]:
         i = int(tree_column)
-
-        columns = {_:f'D{_-i}' if _ < self.norm_to + 1 + i else f'CWT{_ - self.norm_to-i}' for _ in  range(1+i, self.norm_to * 2 + 1 + i)}
+        if self.dmean_only:
+            columns = {_:f'D{_-i}' for _ in  range(1 + i, self.norm_to + 1 + i)}
+        else:
+            columns = {
+                _:f'D{_-i}' if _ < self.norm_to + 1 + i else f'CWT{_ - self.norm_to-i}'
+                for _ in  range(1+i, self.norm_to * 2 + 1 + i)
+            }
         columns[0] = 'Tree' if tree_column else 'Year'
 
         if tree_column:
@@ -66,10 +72,16 @@ class NormalizedTracheids:
 
         tracheids = Tracheids(self.name, self.file_path, self.trees)
         norm_tracheids = tracheids.normalize(self.norm_to)
+        self.dmean_only = 'CWTmean' not in norm_tracheids.columns
 
-        result = norm_tracheids.\
-            pivot(columns='№', values=['Dmean', 'CWTmean'], index=['Tree', 'Year']).\
-            reset_index()
+        result = (
+            norm_tracheids
+            .pivot(
+                columns='№',
+                values='Dmean' if self.dmean_only else ['Dmean', 'CWTmean'],
+                index=['Tree', 'Year']
+            ).reset_index()
+        )
 
         result.columns = [
             ''.join(
