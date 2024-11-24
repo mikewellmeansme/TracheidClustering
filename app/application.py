@@ -34,8 +34,8 @@ default_xticklabels = [1, 5, 10, 15, 1, 5, 10, 15]
 class ClusterMeanObject:
     d_mean: array
     d_conf_interfal: array
-    cwt_mean: array
-    cwt_conf_interfal: array
+    cwt_mean: Optional[array] = None
+    cwt_conf_interfal: Optional[array] = None
 
 
 class Application:
@@ -71,6 +71,7 @@ class Application:
             tracheid_norm_to,
             tracheid_year_threshold
         )
+        self.dmean_only = self.normalized_tracheids.dmean_only
         self.train_clusterer('A', nclusters, min_clusters, max_clusters)
 
         self.chronology = pd.read_csv(crn_path) if crn_path else None
@@ -139,15 +140,19 @@ class Application:
             selected = self.clustered_objects[self.clustered_objects['Class'] == i]
             class_size = len(selected)
             selected_d = selected[[f'D{_ + 1}' for _ in range(norm_to)]]
-            selected_cwt = selected[[f'CWT{_ + 1}' for _ in range(norm_to)]]
 
             d_mean = array(selected_d.mean())
             d_conf_interfal = 1.96 * array(selected_d.std()) / (class_size ** 0.5)
 
-            cwt_mean = array(selected_cwt.mean())
-            cwt_conf_interfal = 1.96 * array(selected_cwt.std()) / (class_size ** 0.5)
+            args = [d_mean, d_conf_interfal]
 
-            result[i] = ClusterMeanObject(d_mean, d_conf_interfal, cwt_mean, cwt_conf_interfal)
+            if not self.dmean_only:
+                selected_cwt = selected[[f'CWT{_ + 1}' for _ in range(norm_to)]]
+                cwt_mean = array(selected_cwt.mean())
+                cwt_conf_interfal = 1.96 * array(selected_cwt.std()) / (class_size ** 0.5)
+                args += [cwt_mean, cwt_conf_interfal]
+
+            result[i] = ClusterMeanObject(*args)
 
         return result
 
@@ -211,13 +216,14 @@ class Application:
                     other_mean_objects[i].d_conf_interfal,
                     other_color
                 ])
-                to_plot.append([
-                    ax,
-                    cwt_xrange,
-                    other_mean_objects[i].cwt_mean,
-                    other_mean_objects[i].cwt_conf_interfal,
-                    other_color
-                ])
+                if not self.dmean_only:
+                    to_plot.append([
+                        ax,
+                        cwt_xrange,
+                        other_mean_objects[i].cwt_mean,
+                        other_mean_objects[i].cwt_conf_interfal,
+                        other_color
+                    ])
 
             to_plot.append([
                 ax,
@@ -225,12 +231,13 @@ class Application:
                 mean_objects[i].d_mean,
                 mean_objects[i].d_conf_interfal
             ])
-            to_plot.append([
-                ax,
-                cwt_xrange,
-                mean_objects[i].cwt_mean,
-                mean_objects[i].cwt_conf_interfal
-            ])
+            if not self.dmean_only:
+                to_plot.append([
+                    ax,
+                    cwt_xrange,
+                    mean_objects[i].cwt_mean,
+                    mean_objects[i].cwt_conf_interfal
+                ])
 
             for args in to_plot:
                 self.__plot_mean_obj_with_conf_interfal__(*args)
@@ -239,8 +246,9 @@ class Application:
             ax.set_xticks(xticks)
             ax.set_xticklabels(xticklabels)
             ax.set_title(f"{i + 1} class{class_title}")
-            ax.text(0.25, 0.94, 'D', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
-            ax.text(0.75, 0.94, 'CWT', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+            if not self.dmean_only:
+                ax.text(0.25, 0.94, 'D', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+                ax.text(0.75, 0.94, 'CWT', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
             ax.text(0.1, 0.95, f'{chr(65 + i)})', transform=ax.transAxes, fontsize=16, va='top', ha='right')
 
         if nrows > 1:
