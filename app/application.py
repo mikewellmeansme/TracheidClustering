@@ -204,7 +204,8 @@ class Application:
             ax = axes[pos]
 
             ax.axhline(y=1, c='grey', linewidth=1)
-            ax.axvline(x=norm_to + 1, c='dimgrey', linewidth=2)
+            if not self.dmean_only:
+                ax.axvline(x=norm_to + 1, c='dimgrey', linewidth=2)
 
             to_plot = []
 
