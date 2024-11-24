@@ -78,7 +78,7 @@ class NormalizedTracheids:
             norm_tracheids
             .pivot(
                 columns='№',
-                values='Dmean' if self.dmean_only else ['Dmean', 'CWTmean'],
+                values=['Dmean'] if self.dmean_only else ['Dmean', 'CWTmean'],
                 index=['Tree', 'Year']
             ).reset_index()
         )
