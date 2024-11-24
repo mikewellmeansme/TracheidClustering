@@ -204,13 +204,33 @@ class Application:
             to_plot = []
 
             if other_mean_objects:
-                to_plot.append(
-                    [ax, d_xrange, other_mean_objects[i].d_mean, other_mean_objects[i].d_conf_interfal, other_color])
-                to_plot.append([ax, cwt_xrange, other_mean_objects[i].cwt_mean, other_mean_objects[i].cwt_conf_interfal,
-                                other_color])
+                to_plot.append([
+                    ax,
+                    d_xrange,
+                    other_mean_objects[i].d_mean,
+                    other_mean_objects[i].d_conf_interfal,
+                    other_color
+                ])
+                to_plot.append([
+                    ax,
+                    cwt_xrange,
+                    other_mean_objects[i].cwt_mean,
+                    other_mean_objects[i].cwt_conf_interfal,
+                    other_color
+                ])
 
-            to_plot.append([ax, d_xrange, mean_objects[i].d_mean, mean_objects[i].d_conf_interfal])
-            to_plot.append([ax, cwt_xrange, mean_objects[i].cwt_mean, mean_objects[i].cwt_conf_interfal])
+            to_plot.append([
+                ax,
+                d_xrange,
+                mean_objects[i].d_mean,
+                mean_objects[i].d_conf_interfal
+            ])
+            to_plot.append([
+                ax,
+                cwt_xrange,
+                mean_objects[i].cwt_mean,
+                mean_objects[i].cwt_conf_interfal
+            ])
 
             for args in to_plot:
                 self.__plot_mean_obj_with_conf_interfal__(*args)
