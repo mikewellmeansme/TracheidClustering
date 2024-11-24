@@ -31,7 +31,7 @@ default_xticklabels = [1, 5, 10, 15, 1, 5, 10, 15]
 
 
 @dataclass
-class ClusterMeanObdect:
+class ClusterMeanObject:
     d_mean: array
     d_conf_interfal: array
     cwt_mean: array
@@ -130,7 +130,7 @@ class Application:
     def get_class_mean_objects(
             self,
             norm_to=15
-    ) -> Dict[int, ClusterMeanObdect]:
+    ) -> Dict[int, ClusterMeanObject]:
 
         nclasses = self.__get_nclasses__()
         result = dict()
@@ -147,7 +147,7 @@ class Application:
             cwt_mean = array(selected_cwt.mean())
             cwt_conf_interfal = 1.96 * array(selected_cwt.std()) / (class_size ** 0.5)
 
-            result[i] = ClusterMeanObdect(d_mean, d_conf_interfal, cwt_mean, cwt_conf_interfal)
+            result[i] = ClusterMeanObject(d_mean, d_conf_interfal, cwt_mean, cwt_conf_interfal)
 
         return result
 
@@ -159,7 +159,7 @@ class Application:
             ylim1: float = 1.25,
             xticks: List[int] = default_xticks,
             xticklabels: List[int] = default_xticklabels,
-            other_mean_objects: Optional[Dict[int, ClusterMeanObdect]] = None,
+            other_mean_objects: Optional[Dict[int, ClusterMeanObject]] = None,
             other_color: str = 'dimgray'
     ) -> Tuple[Figure, Axes]:
 
